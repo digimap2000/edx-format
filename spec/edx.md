@@ -507,7 +507,8 @@ A constraint is `met`, `broken`, or `not_yet_measurable` (for example, a `matche
 ## 11. Results
 
 A layout engine returns the document it was given with `layout` and `report` sections added. Each records the hashes
-of the sections it was made from (section 13.2), so a result can be matched to its inputs:
+of the sections it was made from (section 13.2), so a result can be matched to its inputs. A reader warns when one
+does not match:
 
 ```json
 "inputs": { "design": "sha256:…", "rules": "sha256:…", "constraints": "sha256:…" }
@@ -583,22 +584,52 @@ extension.
 
 ### 13.1 Canonical form
 
+Canonical form gives every document exactly one spelling, so that documents with the same meaning have the same bytes.
 A document in canonical form:
 
-- has object members in the order of the schema, with `extensions` and then `extras` last;
-- omits members whose value equals their default, and empty optional arrays and objects;
-- sorts arrays whose order has no meaning by identity (section 3.1), and pad references by part, then pad; constraint
-  operands and path pads keep their order;
-- writes numbers in the shortest plain decimal that rounds to the same value (section 2.1), with no trailing zeros
-  and no trailing decimal point;
-- writes shapes with single spaces between tokens, outer boundaries counter-clockwise and holes clockwise;
-- indents by two spaces, uses LF line endings, and ends with a single newline.
+- **Members** are in the order the schema lists them, with `extensions` and then `extras` last. Members of objects
+  keyed by name (`rules.classes`, `rules.relations`, a class's `layers`, `attributes`) are in name order.
+- **Defaults** are left out: `rotation` 0, `locked` false, `cost` 1, and `hard` when it equals its default (section
+  9.1). Empty optional arrays and objects are left out.
+- **Sorted lists.** Lists whose order has no meaning are sorted:
+    - records by identity (section 3.1), except the stack-up, whose order is top to bottom: packages, parts, nets,
+      regions, pours, relations, constraints; and likewise placed parts by `ref`, pads in a package by `number`,
+      blocks and quiet groups by `name`, report constraints by `id` and unrouted entries by `net`;
+    - pad references by part, then pad, wherever they form a set (a net's pads, an unrouted entry's pads, a `where`);
+    - lists of names that are sets: `extensions_used`, `extensions_required`, layers of a region or pour,
+      `excludes`, `except_nets`, a block's `parts`, a quiet group's `nets`, `unplaced`, and a `where`'s parts and nets;
+    - every list of shapes, after each shape is written in canonical form (below), as strings;
+    - the angles of an `orientation` constraint, after normalising, with duplicates removed.
+
+  Strings sort by Unicode code point. Everything else keeps its order: constraint operands, path pads, the stack-up,
+  copper, overlaps, clearance entries, a block's `angles`.
+- **Numbers** are rounded to six decimal places (lengths to the nanometre, angles to a millionth of a degree,
+  section 2.1), ties away from zero, and written as the shortest plain decimal that reads back as the same value:
+  no exponent, no leading `+`, no trailing zeros, no trailing decimal point, and `0` rather than `-0`. Angles are
+  first normalised to [0, 360): pad rotations, placement angles, the angle of a `fixed` constraint, the angles of an
+  `orientation` constraint, and block angles.
+- **Shapes** are rewritten: commands and numbers separated by single spaces; an axis-parallel straight segment as
+  `H` or `V`, any other as `L`; arcs as `A r r 0 large sweep x y`; no zero-length segments; the closing straight
+  segment left to `Z`; each subpath starting at its point with the least y, then the least x; the outer boundary
+  running counter-clockwise and holes clockwise, as seen from the top (section 2.5). Holes keep their order.
+- **Inside `extensions` and `extras` values**, which carry no meaning EDX knows, members are sorted by name and
+  numbers are written in the shortest plain decimal without rounding.
+- **Text**: two-space indentation, one member or item per line, `": "` between a name and its value, LF line
+  endings, and a single final newline. Empty arrays and objects are written `[]` and `{}`. Strings escape only
+  what JSON requires: `"` and `\` as `\"` and `\\`, control characters as `\b`, `\f`, `\n`, `\r`, `\t`, or
+  `\u00xx` in lowercase hex. Everything else, including non-ASCII characters, is written as itself.
+
+A reader knows the canonical form only of the minor versions it knows. It MUST NOT write a document of a newer minor
+version in canonical form, or hash it, since it cannot place members it does not know.
 
 ### 13.2 Hashing
 
 The hash of a section is `sha256:` followed by the lowercase hex SHA-256 digest of that section's value written in
-canonical form, as a JSON document on its own. Two sections with the same meaning have the same hash, whatever their
-formatting or order.
+canonical form as a JSON text on its own (an object for `design` and `rules`, an array for `constraints`), final
+newline included. Two sections with the same meaning have the same hash, whatever their formatting or order.
+
+A layout or report states the hashes of the sections it was made from (section 11). A reader that finds one that does
+not match the document's section warns (`EDX-W2013`): the result is stale, or was made from other inputs.
 
 ## 14. Validation
 
@@ -673,6 +704,7 @@ Initial codes:
 | `EDX-E2010` | semantics | a reference names a net that does not exist |
 | `EDX-E2011` | semantics | a reference names a layer that does not exist |
 | `EDX-E2012` | semantics | a reference names a region, block or relation that does not exist |
+| `EDX-W2013` | semantics | a layout or report states an input hash that differs from the document's section (section 13.2) |
 | `EDX-E3001` | semantics | an arc whose radii differ, or are zero |
 | `EDX-E3002` | semantics | a subpath crosses itself or encloses no area |
 | `EDX-E3003` | semantics | a hole is not inside its outer boundary, or holes overlap |

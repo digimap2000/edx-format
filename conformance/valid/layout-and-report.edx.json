@@ -204,6 +204,11 @@
     }
   ],
   "layout": {
+    "inputs": {
+      "design": "sha256:9d4d884ba346f3b311f40be66fe5e73b65993d6c55b9f5e03df07b7acd7e6bf9",
+      "rules": "sha256:1e29443c126d60f33e9ae025f26102972184a54d92aabb12fb772afe9db6b65b",
+      "constraints": "sha256:1ed048ded2141a0a5de0f3b03088f689b6934e08ca9d5bee0c22452f49d2154c"
+    },
     "placement": [
       {
         "ref": "C1",
@@ -245,6 +250,11 @@
     }
   },
   "report": {
+    "inputs": {
+      "design": "sha256:9d4d884ba346f3b311f40be66fe5e73b65993d6c55b9f5e03df07b7acd7e6bf9",
+      "rules": "sha256:1e29443c126d60f33e9ae025f26102972184a54d92aabb12fb772afe9db6b65b",
+      "constraints": "sha256:1ed048ded2141a0a5de0f3b03088f689b6934e08ca9d5bee0c22452f49d2154c"
+    },
     "constraints": [
       {
         "id": "max_track:C1.1:U1.1",

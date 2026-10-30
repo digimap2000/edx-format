@@ -7,6 +7,7 @@ Language-neutral test cases that every EDX implementation runs. `cases.json` lis
 | `examples/` | complete synthetic documents, also used by the documentation |
 | `valid/` | documents a conforming reader accepts, some with expected warnings |
 | `invalid/` | one fault per document, named after the code a conforming reader must report |
+| `canonical/` | documents written untidily, with the canonical form they must produce |
 
 ## The case list
 
@@ -25,6 +26,11 @@ Each entry in `cases.json` is one case:
 }
 ```
 
+A canonical-form case adds `"canonical"` to `expect`, a file holding the exact bytes of the input in canonical form
+(section 13.1), and `"hashes"`, the hashes of its `design`, `rules` and `constraints` (section 13.2). The files in
+`canonical/` are written differently on purpose: indented by four spaces or by tabs, with CRLF line endings, members
+in reverse order, and so on.
+
 A merge case has `"merge": [first, second]` instead of `input`: the two documents are merged (section 3.2 of the
 specification) and the merge result is checked.
 
@@ -36,6 +42,7 @@ An implementation passes a case when:
 - for `EDX-E1000` (a schema error), each expected pointer has a reported `EDX-E1000` at that pointer or below it,
   since validators differ in how deep they point;
 - it reports every expected warning (further warnings are allowed);
+- for a canonical-form case, it writes exactly the expected bytes and computes exactly the expected hashes;
 - for a merge case, merging in either order gives the same result.
 
 `invalid/` files with codes in `EDX-E0xxx` are deliberately broken bytes, not valid JSON. Read them as bytes.
@@ -49,7 +56,8 @@ An implementation passes a case when:
 ## Running the suite against another implementation
 
 `tools/conformance.py` runs every case through a command-line tool that offers `check --format json FILE` and
-`merge --format json FIRST SECOND`, printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
+`merge --format json FIRST SECOND`, and for the canonical-form cases `fmt FILE` (the canonical bytes on standard
+output) and `hash --format json FILE`, printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
 successful merge). Each diagnostic needs `code`, `severity` and `pointer`.
 
 ```sh

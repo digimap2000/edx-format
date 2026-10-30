@@ -13,6 +13,8 @@ Usage:
   edx check [--format text|json] FILE...   check documents; exit status 1 if any has errors
   edx merge [--format text|json] [-o OUT] FIRST SECOND
                                            merge two documents and check the result
+  edx fmt [-o OUT] FILE                    write a document in canonical form
+  edx hash [--format text|json] FILE       print the hashes of its design, rules and constraints
   edx schema                               print the JSON Schema this tool checks against
   edx explain CODE                         describe a diagnostic code, such as EDX-E2001
   edx codes                                list every diagnostic code
@@ -71,6 +73,8 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
     match command.as_str() {
         "check" if !files.is_empty() => check(&files, format),
         "merge" if files.len() == 2 => merge(&files[0], &files[1], format, output.as_deref()),
+        "fmt" if files.len() == 1 => fmt(&files[0], output.as_deref()),
+        "hash" if files.len() == 1 => hash(&files[0], format),
         "schema" => {
             print!("{}", edx_format::SCHEMA);
             Ok(ExitCode::SUCCESS)
@@ -86,7 +90,7 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
             println!("{USAGE}");
             Ok(ExitCode::SUCCESS)
         }
-        "check" | "merge" | "explain" => Err(format!("wrong number of arguments for `{command}`")),
+        "check" | "merge" | "explain" | "fmt" | "hash" => Err(format!("wrong number of arguments for `{command}`")),
         _ => Err(format!("unknown command `{command}`")),
     }
 }
@@ -180,6 +184,58 @@ fn merge(first: &str, second: &str, format: Format, output: Option<&str>) -> Res
         }
     }
     Ok(status(merged.is_ok()))
+}
+
+/// Reads a document for canonical form, which needs every member known (section 13).
+fn read_known(file: &str) -> Result<Result<edx_format::Document, Checked>, String> {
+    let checked = edx_format::check(&read(file)?);
+    let newer = checked.diagnostics.iter().any(|d| d.code == "EDX-W1006");
+    Ok(match checked.document {
+        Some(ref d) if checked.is_ok() && !newer => Ok(d.clone()),
+        _ => Err(checked),
+    })
+}
+
+fn refuse(file: &str, checked: &Checked) -> ExitCode {
+    print_text(file, checked);
+    if checked.is_ok() {
+        eprintln!("{file}: a document of a newer minor version has no canonical form this tool can write");
+    }
+    ExitCode::from(1)
+}
+
+fn fmt(file: &str, output: Option<&str>) -> Result<ExitCode, String> {
+    let document = match read_known(file)? {
+        Ok(d) => d,
+        Err(checked) => return Ok(refuse(file, &checked)),
+    };
+    let text = edx_format::to_canonical_string(&document);
+    match output {
+        Some(path) => std::fs::write(path, text).map_err(|e| format!("{path}: {e}"))?,
+        None => std::io::stdout().write_all(text.as_bytes()).map_err(|e| e.to_string())?,
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn hash(file: &str, format: Format) -> Result<ExitCode, String> {
+    let document = match read_known(file)? {
+        Ok(d) => d,
+        Err(checked) => return Ok(refuse(file, &checked)),
+    };
+    let hashes = edx_format::hashes(&document);
+    match format {
+        Format::Json => println!("{}", serde_json::to_string(&hashes).map_err(|e| e.to_string())?),
+        Format::Text => {
+            for (section, hash) in
+                [("design", &hashes.design), ("rules", &hashes.rules), ("constraints", &hashes.constraints)]
+            {
+                if let Some(hash) = hash {
+                    println!("{section:<12} {hash}");
+                }
+            }
+        }
+    }
+    Ok(ExitCode::SUCCESS)
 }
 
 fn explain(code: &str) -> Result<ExitCode, String> {

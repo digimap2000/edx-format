@@ -16,4 +16,5 @@ name = "edx_format"
 geo = "0.33.1"
 jsonschema = { version = "0.60.2", default-features = false }
 serde = { workspace = true }
+sha2 = "0.10.9"
 serde_json = { workspace = true }

@@ -164,6 +164,18 @@ fn arc_points(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool, out:
     out.push(p1);
 }
 
+/// Twice the signed area of a ring by the shoelace formula. Seen from the top, with y downwards,
+/// a counter-clockwise ring has a negative sum.
+pub fn signed_area(points: &[[f64; 2]]) -> f64 {
+    let n = points.len();
+    (0..n)
+        .map(|i| {
+            let (a, b) = (points[i], points[(i + 1) % n]);
+            a[0] * b[1] - b[0] * a[1]
+        })
+        .sum()
+}
+
 /// A shape as a polygon, with arcs flattened.
 pub fn to_polygon(subpaths: &[Subpath]) -> Polygon<f64> {
     let ring = |s: &Subpath| LineString::from(flatten(s).into_iter().map(|[x, y]| Coord { x, y }).collect::<Vec<_>>());

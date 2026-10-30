@@ -12,6 +12,7 @@
 //! assert_eq!(document.edx, "1.0");
 //! ```
 
+pub mod canonical;
 mod diagnostic;
 pub mod ids;
 mod merge;
@@ -24,6 +25,7 @@ mod version;
 
 use serde_json::Value;
 
+pub use canonical::{hashes, to_canonical_string, Hashes};
 pub use diagnostic::{Diagnostic, Severity, CODES};
 pub use merge::same;
 pub use model::Document;
@@ -84,7 +86,7 @@ pub fn check_value(value: Value) -> Checked {
             return Checked { value: Some(value), document: None, diagnostics };
         }
     };
-    diagnostics.extend(semantic::check(&document, &value));
+    diagnostics.extend(semantic::check(&document, &value, version.newer_minor));
     Checked { value: Some(value), document: Some(document), diagnostics }
 }
 

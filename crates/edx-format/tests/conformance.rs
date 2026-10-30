@@ -38,6 +38,24 @@ fn run(case: &Value) -> Vec<String> {
         let bytes = std::fs::read(suite().join(case["input"].as_str().unwrap())).unwrap();
         vec![edx_format::check(&bytes)]
     };
+    if let Some(expected) = case["expect"]["canonical"].as_str() {
+        let expected = std::fs::read_to_string(suite().join(expected)).unwrap();
+        match outcomes[0].document.as_ref() {
+            Some(document) if edx_format::to_canonical_string(document) != expected => {
+                problems.push("the canonical form differs from the expected file".to_owned())
+            }
+            Some(_) => {}
+            None => problems.push("no document to write in canonical form".to_owned()),
+        }
+    }
+    if let Some(expected) = case["expect"].get("hashes") {
+        if let Some(document) = outcomes[0].document.as_ref() {
+            let hashes = serde_json::to_value(edx_format::hashes(document)).unwrap();
+            if &hashes != expected {
+                problems.push(format!("expected hashes {expected}, got {hashes}"));
+            }
+        }
+    }
     for checked in outcomes {
         let errors: BTreeSet<(String, String)> =
             checked.errors().map(|d| (d.code.to_owned(), d.pointer.clone())).collect();

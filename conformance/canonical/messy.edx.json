@@ -1,0 +1,249 @@
+{
+    "extras": {
+        "a": {
+            "x": null,
+            "y": true
+        },
+        "b": 1
+    },
+    "constraints": [
+        {
+            "source": {
+                "document": "conformance case"
+            },
+            "origin": "authored",
+            "value": [
+                180,
+                -90,
+                0,
+                360
+            ],
+            "operands": [
+                {
+                    "part": "U1"
+                }
+            ],
+            "type": "orientation",
+            "id": "orientation:U1"
+        },
+        {
+            "hard": true,
+            "cost": 1,
+            "source": {
+                "rule": "decouples.max_track",
+                "relation": "decouples:C1.1:U1.1"
+            },
+            "origin": "derived",
+            "value": 2.0,
+            "operands": [
+                {
+                    "pad": "1",
+                    "part": "C1"
+                },
+                {
+                    "pad": "1",
+                    "part": "U1"
+                }
+            ],
+            "type": "max_track",
+            "id": "max_track:C1.1:U1.1"
+        }
+    ],
+    "rules": {
+        "relations": {
+            "decouples": {
+                "extras": {
+                    "alpha": [
+                        3,
+                        2,
+                        1
+                    ],
+                    "zeta": 1.0
+                },
+                "max_track": 2.0
+            }
+        },
+        "classes": {
+            "default": {
+                "via": {
+                    "drill": 0.3,
+                    "pad": 0.6
+                },
+                "track_width": {
+                    "preferred": 0.2,
+                    "min": 0.15
+                },
+                "clearance": 0.15000000001
+            }
+        }
+    },
+    "design": {
+        "relations": [
+            {
+                "object": {
+                    "pad": "1",
+                    "part": "U1"
+                },
+                "subject": {
+                    "pad": "1",
+                    "part": "C1"
+                },
+                "kind": "decouples"
+            }
+        ],
+        "nets": [
+            {
+                "pads": [
+                    {
+                        "pad": "1",
+                        "part": "U1"
+                    },
+                    {
+                        "pad": "1",
+                        "part": "C1"
+                    }
+                ],
+                "name": "VCC"
+            },
+            {
+                "pads": [
+                    {
+                        "pad": "2",
+                        "part": "U1"
+                    },
+                    {
+                        "pad": "2",
+                        "part": "C1"
+                    }
+                ],
+                "name": "GND"
+            }
+        ],
+        "parts": [
+            {
+                "placement": {
+                    "angle": -90,
+                    "at": [
+                        5.0000000004,
+                        2.5
+                    ],
+                    "kind": "fixed"
+                },
+                "side": "top",
+                "package": "IC2",
+                "ref": "U1"
+            },
+            {
+                "placement": {
+                    "kind": "free"
+                },
+                "side": "top",
+                "value": "100nF",
+                "package": "C0402",
+                "ref": "C1"
+            }
+        ],
+        "packages": [
+            {
+                "courtyard": {
+                    "top": [
+                        "M 1.5 0.5 H -1.5 V -0.5 H 1.5 L 1.5 0.5 Z"
+                    ]
+                },
+                "pads": [
+                    {
+                        "rotation": 450,
+                        "layers": "top",
+                        "position": [
+                            -1,
+                            0
+                        ],
+                        "size": [
+                            0.5,
+                            0.5
+                        ],
+                        "shape": "rect",
+                        "kind": "smd",
+                        "number": "1"
+                    },
+                    {
+                        "layers": "top",
+                        "position": [
+                            1,
+                            0
+                        ],
+                        "size": [
+                            0.5,
+                            0.5
+                        ],
+                        "shape": "rect",
+                        "kind": "smd",
+                        "number": "2"
+                    }
+                ],
+                "class": "ic",
+                "id": "IC2"
+            },
+            {
+                "courtyard": {
+                    "top": [
+                        "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+                    ]
+                },
+                "pads": [
+                    {
+                        "rotation": 0,
+                        "layers": "top",
+                        "position": [
+                            0.48,
+                            0
+                        ],
+                        "corner_radius": 0.07,
+                        "size": [
+                            0.56,
+                            0.62
+                        ],
+                        "shape": "roundrect",
+                        "kind": "smd",
+                        "number": "2"
+                    },
+                    {
+                        "layers": "top",
+                        "position": [
+                            -0.48,
+                            0
+                        ],
+                        "corner_radius": 0.07,
+                        "size": [
+                            0.56,
+                            0.62
+                        ],
+                        "shape": "roundrect",
+                        "kind": "smd",
+                        "number": "1"
+                    }
+                ],
+                "class": "passive",
+                "id": "C0402"
+            }
+        ],
+        "board": {
+            "stackup": [
+                {
+                    "routable": true,
+                    "role": "signal",
+                    "name": "top"
+                },
+                {
+                    "routable": true,
+                    "role": "signal",
+                    "name": "bottom"
+                }
+            ],
+            "outline": [
+                "M 10,10 L 0 10 L 0 0 L 10 0 Z M 6 6 V 4 H 4 V 6 Z"
+            ]
+        }
+    },
+    "edx": "1.0"
+}

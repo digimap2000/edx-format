@@ -26,7 +26,8 @@ one. Areas are written as SVG path data.
 
 The Rust crate `edx-format` checks a document in the four layers of the specification (parse, version and
 extensions, schema, semantics), reads it into a typed model that keeps every `extensions` and `extras` member, merges
-documents by record identity, and writes them back.
+documents by record identity, and writes them back, plainly or in canonical form, with the section hashes a layout
+engine records.
 
 ```rust
 let checked = edx_format::check(&std::fs::read("board.edx.json")?);
@@ -45,6 +46,8 @@ cargo install --path crates/edx-cli
 edx check board.edx.json                 # exit status 1 when the document has errors
 edx check --format json board.edx.json   # diagnostics as JSON, for other tools
 edx merge design.edx.json rules.edx.json -o merged.edx.json
+edx fmt board.edx.json                   # canonical form (section 13 of the spec)
+edx hash board.edx.json                  # sha256 of the design, rules and constraints
 edx explain EDX-E3005
 ```
 

@@ -13,11 +13,14 @@
 //! ```
 
 pub mod canonical;
+pub mod derive;
 mod diagnostic;
+pub mod geometry;
 pub mod ids;
 mod merge;
 pub mod model;
 mod parse;
+pub mod query;
 mod schema;
 mod semantic;
 pub mod shape;
@@ -27,6 +30,7 @@ use serde_json::Value;
 
 pub use canonical::{hashes, to_canonical_string, Hashes};
 pub use diagnostic::{Diagnostic, Severity, CODES};
+pub use geometry::Transform;
 pub use merge::same;
 pub use model::Document;
 pub use schema::SCHEMA;

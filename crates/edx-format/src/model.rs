@@ -8,6 +8,14 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
+fn is_zero(v: &f64) -> bool {
+    *v == 0.0
+}
+
+fn is_false(v: &bool) -> bool {
+    !*v
+}
+
 /// A point `[x, y]` in millimetres.
 pub type Point = [f64; 2];
 /// A shape: SVG path data in the EDX subset (section 2.5).
@@ -160,7 +168,7 @@ pub struct Pad {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub outline: Option<Shape>,
     pub position: Point,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_zero")]
     pub rotation: f64,
     pub layers: PadLayers,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -519,7 +527,7 @@ pub struct PlacedPart {
     pub angle: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub side: Option<Side>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub locked: bool,
     #[serde(flatten)]
     pub ext: Ext,
@@ -544,7 +552,7 @@ pub struct Track {
     pub width: f64,
     pub start: Point,
     pub end: Point,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub locked: bool,
     #[serde(flatten)]
     pub ext: Ext,
@@ -558,7 +566,7 @@ pub struct Arc {
     pub start: Point,
     pub mid: Point,
     pub end: Point,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub locked: bool,
     #[serde(flatten)]
     pub ext: Ext,
@@ -571,7 +579,7 @@ pub struct Via {
     pub pad: f64,
     pub drill: f64,
     pub layers: [String; 2],
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_false")]
     pub locked: bool,
     #[serde(flatten)]
     pub ext: Ext,

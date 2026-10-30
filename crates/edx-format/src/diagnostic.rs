@@ -82,6 +82,7 @@ pub const CODES: &[(&str, &str)] = &[
     ("EDX-E2010", "a reference names a net that does not exist"),
     ("EDX-E2011", "a reference names a layer that does not exist"),
     ("EDX-E2012", "a reference names a region, block or relation that does not exist"),
+    ("EDX-W2013", "a layout or report was made from a section that differs from the document's"),
     ("EDX-E3001", "an arc whose radii differ, or are zero"),
     ("EDX-E3002", "a subpath crosses itself or encloses no area"),
     ("EDX-E3003", "a hole is not inside its outer boundary, or holes overlap"),

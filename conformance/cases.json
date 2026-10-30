@@ -134,11 +134,30 @@
     {
       "name": "layout-and-report",
       "clause": "11",
-      "description": "A complete document with a layout and report, as an engine returns it.",
+      "description": "A complete document with a layout and report, as an engine returns it, each stating the hashes of the sections it was made from.",
       "input": "valid/layout-and-report.edx.json",
       "expect": {
         "errors": [],
         "warnings": []
+      }
+    },
+    {
+      "name": "stale-inputs",
+      "clause": "11",
+      "description": "The design changed after the layout and report were made, so their design hashes no longer match: a warning, not an error.",
+      "input": "valid/stale-inputs.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [
+          {
+            "code": "EDX-W2013",
+            "pointer": "/layout/inputs/design"
+          },
+          {
+            "code": "EDX-W2013",
+            "pointer": "/report/inputs/design"
+          }
+        ]
       }
     },
     {
@@ -668,6 +687,38 @@
           }
         ],
         "warnings": []
+      }
+    },
+    {
+      "name": "canonical-form",
+      "clause": "13.1",
+      "description": "Records out of order, defaults written out, angles outside [0, 360), clockwise outlines, a hole running the wrong way and unrounded numbers, written in canonical form.",
+      "input": "canonical/messy.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "canonical": "canonical/messy.canonical.edx.json",
+        "hashes": {
+          "design": "sha256:51549b0be24c863979a4ec4b2a7b214bc1f9ae9969a675711a2834d23d5d2ada",
+          "rules": "sha256:54a519d087eacf14fbdf516e4e5a61042efa6af7fe2b4dcc82c2bf9edd35f335",
+          "constraints": "sha256:76427fe59440ab7035d16f6be149abab334c38e3ee68bfaa528c8a701bb79d99"
+        }
+      }
+    },
+    {
+      "name": "canonical-same-meaning",
+      "clause": "13.2",
+      "description": "The same document written differently again (tabs, CRLF line endings, other start points, angles and number spellings): the same canonical form and the same hashes.",
+      "input": "canonical/same-meaning.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "canonical": "canonical/messy.canonical.edx.json",
+        "hashes": {
+          "design": "sha256:51549b0be24c863979a4ec4b2a7b214bc1f9ae9969a675711a2834d23d5d2ada",
+          "rules": "sha256:54a519d087eacf14fbdf516e4e5a61042efa6af7fe2b4dcc82c2bf9edd35f335",
+          "constraints": "sha256:76427fe59440ab7035d16f6be149abab334c38e3ee68bfaa528c8a701bb79d99"
+        }
       }
     },
     {

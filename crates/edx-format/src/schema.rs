@@ -11,7 +11,13 @@ use crate::diagnostic::Diagnostic;
 pub const SCHEMA: &str = include_str!("../../../schema/1.0/edx.schema.json");
 
 fn schema_value() -> Value {
-    serde_json::from_str(SCHEMA).expect("the embedded schema is valid JSON")
+    value().clone()
+}
+
+/// The embedded schema, parsed once.
+pub(crate) fn value() -> &'static Value {
+    static V: OnceLock<Value> = OnceLock::new();
+    V.get_or_init(|| serde_json::from_str(SCHEMA).expect("the embedded schema is valid JSON"))
 }
 
 fn strict() -> &'static Validator {

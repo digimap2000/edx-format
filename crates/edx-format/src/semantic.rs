@@ -11,7 +11,8 @@ use crate::model::*;
 use crate::shape;
 use crate::version::SUPPORTED_EXTENSIONS;
 
-pub(crate) fn check(doc: &Document, raw: &Value) -> Vec<Diagnostic> {
+/// `newer_minor`: the document is of a newer minor version, so its hashes cannot be computed here.
+pub(crate) fn check(doc: &Document, raw: &Value, newer_minor: bool) -> Vec<Diagnostic> {
     let mut c = Checker::new(doc);
     c.extensions(raw);
     c.identities();
@@ -19,6 +20,9 @@ pub(crate) fn check(doc: &Document, raw: &Value) -> Vec<Diagnostic> {
     c.geometry();
     c.completeness();
     c.contradictions();
+    if !newer_minor {
+        c.inputs();
+    }
     c.out
 }
 
@@ -547,6 +551,38 @@ impl<'a> Checker<'a> {
                         format!("/design/relations/{i}/kind"),
                         format!("relation kind `{}` has no rule", r.kind),
                     );
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------ result inputs (section 11)
+
+    fn inputs(&mut self) {
+        let doc = self.doc;
+        let stated = [
+            ("/layout/inputs", doc.layout.as_ref().and_then(|l| l.inputs.as_ref())),
+            ("/report/inputs", doc.report.as_ref().and_then(|r| r.inputs.as_ref())),
+        ];
+        if stated.iter().all(|(_, i)| i.is_none()) {
+            return;
+        }
+        let actual = crate::canonical::hashes(doc);
+        for (at, inputs) in stated {
+            let Some(inputs) = inputs else { continue };
+            for (section, claimed, hash) in [
+                ("design", &inputs.design, &actual.design),
+                ("rules", &inputs.rules, &actual.rules),
+                ("constraints", &inputs.constraints, &actual.constraints),
+            ] {
+                if let Some(claimed) = claimed {
+                    if Some(claimed) != hash.as_ref() {
+                        self.push(
+                            "EDX-W2013",
+                            ptr(at, section),
+                            format!("made from a different `{section}` than this document has"),
+                        );
+                    }
                 }
             }
         }

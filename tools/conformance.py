@@ -5,6 +5,8 @@ The tool must offer, like the reference `edx` command:
 
     TOOL check --format json FILE          -> {"documents": [{"diagnostics": [...]}]}
     TOOL merge --format json FIRST SECOND  -> the same, plus "result" when the merge succeeds
+    TOOL fmt FILE                          -> the document in canonical form
+    TOOL hash --format json FILE           -> {"design": "sha256:…", "rules": …, "constraints": …}
 
 Each diagnostic has at least "code", "severity" and "pointer". The exit status is ignored.
 
@@ -29,6 +31,10 @@ def run(tool, *args):
         raise SystemExit(f"{' '.join(tool)} {' '.join(args)}: unreadable output\n{done.stdout}{done.stderr}")
 
 
+def output(tool, *args):
+    return subprocess.run([*tool, *args], cwd=SUITE, capture_output=True).stdout
+
+
 def pairs(diagnostics, severity):
     return {(d["code"], d["pointer"]) for d in diagnostics if d.get("severity", "error") == severity}
 
@@ -44,6 +50,16 @@ def problems(case, tool):
             yield "merging in the two orders gives different results"
     else:
         outcomes = [run(tool, "check", "--format", "json", case["input"])]
+    if "canonical" in case["expect"]:
+        if output(tool, "fmt", case["input"]) != (SUITE / case["expect"]["canonical"]).read_bytes():
+            yield "the canonical form differs from the expected file"
+    if "hashes" in case["expect"]:
+        try:
+            hashes = json.loads(output(tool, "hash", "--format", "json", case["input"]))
+        except ValueError:
+            hashes = None
+        if hashes != case["expect"]["hashes"]:
+            yield f"expected hashes {case['expect']['hashes']}, got {hashes}"
     for diagnostics, _ in outcomes:
         errors = pairs(diagnostics, "error")
         if any(code == "EDX-E1000" for code, _ in expected_errors):

@@ -1450,23 +1450,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "max_track"
         },
@@ -1485,6 +1468,23 @@
         },
         "value": {
           "$ref": "#/$defs/positive_length"
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1510,23 +1510,6 @@
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
         },
         "type": {
           "const": "max_distance"
@@ -1564,6 +1547,23 @@
         "measure": {
           "$ref": "#/$defs/measure"
         },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -1590,23 +1590,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "max_length"
         },
@@ -1629,6 +1612,23 @@
         },
         "value": {
           "$ref": "#/$defs/positive_length"
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1655,6 +1655,19 @@
           "type": "string",
           "minLength": 1
         },
+        "type": {
+          "const": "matched"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/op_net"
+          },
+          "minItems": 2
+        },
+        "value": {
+          "$ref": "#/$defs/non_negative_length"
+        },
         "hard": {
           "type": "boolean"
         },
@@ -1671,19 +1684,6 @@
         },
         "source": {
           "$ref": "#/$defs/source"
-        },
-        "type": {
-          "const": "matched"
-        },
-        "operands": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/op_net"
-          },
-          "minItems": 2
-        },
-        "value": {
-          "$ref": "#/$defs/non_negative_length"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1710,23 +1710,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "square_on_pin"
         },
@@ -1745,6 +1728,23 @@
         },
         "value": {
           "$ref": "#/$defs/non_negative_length"
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1770,6 +1770,22 @@
           "type": "string",
           "minLength": 1
         },
+        "type": {
+          "const": "via_policy"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_relations"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/via_policy_value"
+        },
         "hard": {
           "type": "boolean"
         },
@@ -1786,22 +1802,6 @@
         },
         "source": {
           "$ref": "#/$defs/source"
-        },
-        "type": {
-          "const": "via_policy"
-        },
-        "operands": {
-          "type": "array",
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/op_relations"
-            }
-          ],
-          "items": false,
-          "minItems": 1
-        },
-        "value": {
-          "$ref": "#/$defs/via_policy_value"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1828,23 +1828,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "same_layer"
         },
@@ -1861,6 +1844,23 @@
             ]
           },
           "minItems": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1886,23 +1886,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "no_vias"
         },
@@ -1919,6 +1902,23 @@
             ]
           },
           "minItems": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -1944,23 +1944,6 @@
           "type": "string",
           "minLength": 1
         },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
-        },
         "type": {
           "const": "quiet"
         },
@@ -1980,6 +1963,23 @@
         },
         "value": {
           "$ref": "#/$defs/non_negative_length"
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -2006,6 +2006,19 @@
           "type": "string",
           "minLength": 1
         },
+        "type": {
+          "const": "keepout"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_region"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
         "hard": {
           "type": "boolean"
         },
@@ -2022,19 +2035,6 @@
         },
         "source": {
           "$ref": "#/$defs/source"
-        },
-        "type": {
-          "const": "keepout"
-        },
-        "operands": {
-          "type": "array",
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/op_region"
-            }
-          ],
-          "items": false,
-          "minItems": 1
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -2059,23 +2059,6 @@
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
         },
         "type": {
           "const": "fixed"
@@ -2112,6 +2095,23 @@
             "angle"
           ]
         },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -2137,6 +2137,22 @@
           "type": "string",
           "minLength": 1
         },
+        "type": {
+          "const": "side"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_part"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/side"
+        },
         "hard": {
           "type": "boolean"
         },
@@ -2153,22 +2169,6 @@
         },
         "source": {
           "$ref": "#/$defs/source"
-        },
-        "type": {
-          "const": "side"
-        },
-        "operands": {
-          "type": "array",
-          "prefixItems": [
-            {
-              "$ref": "#/$defs/op_part"
-            }
-          ],
-          "items": false,
-          "minItems": 1
-        },
-        "value": {
-          "$ref": "#/$defs/side"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"
@@ -2194,23 +2194,6 @@
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
         },
         "type": {
           "const": "orientation"
@@ -2240,6 +2223,23 @@
           "minItems": 1,
           "uniqueItems": true
         },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -2264,23 +2264,6 @@
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "hard": {
-          "type": "boolean"
-        },
-        "cost": {
-          "type": "number",
-          "minimum": 0,
-          "default": 1
-        },
-        "origin": {
-          "enum": [
-            "derived",
-            "authored"
-          ]
-        },
-        "source": {
-          "$ref": "#/$defs/source"
         },
         "type": {
           "const": "block"
@@ -2310,6 +2293,23 @@
             "name"
           ]
         },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -2335,6 +2335,16 @@
           "type": "string",
           "minLength": 1
         },
+        "type": {
+          "$ref": "#/$defs/extension_name"
+        },
+        "operands": {
+          "type": "array"
+        },
+        "value": {},
+        "measure": {
+          "type": "string"
+        },
         "hard": {
           "type": "boolean"
         },
@@ -2351,16 +2361,6 @@
         },
         "source": {
           "$ref": "#/$defs/source"
-        },
-        "type": {
-          "$ref": "#/$defs/extension_name"
-        },
-        "operands": {
-          "type": "array"
-        },
-        "value": {},
-        "measure": {
-          "type": "string"
         },
         "extensions": {
           "$ref": "#/$defs/extensions"

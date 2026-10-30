@@ -126,13 +126,15 @@ mod tests {
                          "layers": { "bottom": { "clearance": 0.2 } } },
             "Supply": { "track_width": { "min": 0.3, "preferred": 0.5 },
                         "layers": { "bottom": { "track_width": { "min": 0.4, "preferred": 0.6 } } } } } } }"#);
-        let rules = d.rules.unwrap();
+        let rules = d.rules.as_ref().unwrap();
         let s = rules.class("Supply", None);
         assert_eq!((s.clearance, s.track_width.unwrap().preferred, s.via.unwrap().drill), (Some(0.15), 0.5, 0.3));
         let s = rules.class("Supply", Some("bottom"));
         assert_eq!((s.clearance, s.track_width.unwrap().preferred), (Some(0.2), 0.6));
         assert_eq!(rules.class("default", Some("bottom")).clearance, Some(0.2));
         assert_eq!(rules.class("Unknown", None).clearance, Some(0.15));
+        let missing: Vec<String> = crate::incomplete(&d).into_iter().map(|e| e.message).collect();
+        assert_eq!(missing, ["a layout engine or checker needs a design"]);
     }
 
     #[test]

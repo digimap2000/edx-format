@@ -103,6 +103,12 @@ pub fn read(bytes: &[u8]) -> Result<(Document, Vec<Diagnostic>), Vec<Diagnostic>
     }
 }
 
+/// Why a checked document is not complete (section 4): an empty list when it is. A layout engine or
+/// checker refuses an incomplete document.
+pub fn incomplete(document: &Document) -> Vec<Diagnostic> {
+    semantic::incomplete(document)
+}
+
 /// Merges two documents (section 3.2) and checks the result.
 ///
 /// Each document is checked first; if either has errors the merge does not happen, and their

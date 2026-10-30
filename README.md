@@ -5,8 +5,9 @@ board is and what it must achieve: outline, stack-up, packages, parts, nets, reg
 relations, rules and explicit constraints. A layout engine decides how, and returns placement, copper and a report
 in the same terms.
 
-An EDX bundle is a directory of readable text files: a `layout.toml` manifest, plus `design.json`, `rules.toml` and
-`constraints.json`. JSON is used where files are generated and TOML where they are written by hand.
+An EDX document is one JSON file (`*.edx.json`) with optional sections: `design`, `rules`, `constraints`, and the
+engine's `layout` and `report`. Documents holding different sections, such as a design and a set of rules, merge into
+one. Areas are written as SVG path data.
 
 **Status:** pre-release. The specification, [`spec/edx.md`](spec/edx.md), is a working draft of version 1.0; nothing is stable yet.
 
@@ -15,8 +16,8 @@ An EDX bundle is a directory of readable text files: a `layout.toml` manifest, p
 | Folder | Contents |
 | --- | --- |
 | `spec/` | The specification, the normative definition of EDX |
-| `schemas/` | JSON Schema (2020-12) for each file kind, normative alongside the spec |
-| `conformance/` | Language-neutral test cases: valid, invalid and canonical round-trip bundles |
+| `schema/` | The JSON Schema (2020-12) for an EDX document, normative alongside the spec |
+| `conformance/` | Language-neutral test cases and example documents |
 
 A reference library (Rust core, with Python and JavaScript packages and a command-line validator) will follow,
 published as `edx-format`.

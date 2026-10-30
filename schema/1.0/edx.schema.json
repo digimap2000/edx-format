@@ -1,0 +1,3002 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://digimap2000.github.io/edx-format/schema/1.0/edx.schema.json",
+  "title": "EDX document, version 1.0",
+  "description": "An Electronics Design eXchange document. Every section is optional. Specification: https://github.com/digimap2000/edx-format/blob/main/spec/edx.md",
+  "type": "object",
+  "properties": {
+    "edx": {
+      "description": "EDX version, MAJOR.MINOR. This schema reads 1.x.",
+      "type": "string",
+      "pattern": "^1\\.(?:0|[1-9][0-9]*)$"
+    },
+    "extensions_used": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/extension_name"
+      },
+      "uniqueItems": true
+    },
+    "extensions_required": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/extension_name"
+      },
+      "uniqueItems": true
+    },
+    "design": {
+      "$ref": "#/$defs/design"
+    },
+    "rules": {
+      "$ref": "#/$defs/rules"
+    },
+    "constraints": {
+      "$ref": "#/$defs/constraints"
+    },
+    "layout": {
+      "$ref": "#/$defs/layout"
+    },
+    "report": {
+      "$ref": "#/$defs/report"
+    },
+    "extensions": {
+      "$ref": "#/$defs/extensions"
+    },
+    "extras": {
+      "$ref": "#/$defs/extras"
+    }
+  },
+  "required": [
+    "edx"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "extras": {
+      "description": "Application-specific data. Readers preserve it and never give it meaning (section 12.4).",
+      "type": "object"
+    },
+    "extension_name": {
+      "description": "A namespaced extension name, <namespace>.<name> (section 12.3).",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_.-]*$"
+    },
+    "extensions": {
+      "description": "Extension data on this object, keyed by extension name (section 12.3).",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/extension_name"
+      },
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "name": {
+      "description": "A name: non-empty, no leading or trailing white space (section 2.6).",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S(?:.*\\S)?$",
+      "examples": [
+        "U1",
+        "+3V3",
+        "A12"
+      ]
+    },
+    "length": {
+      "description": "A length in millimetres.",
+      "type": "number"
+    },
+    "positive_length": {
+      "description": "A length in millimetres, greater than zero.",
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "non_negative_length": {
+      "description": "A length in millimetres, zero or more.",
+      "type": "number",
+      "minimum": 0
+    },
+    "angle": {
+      "description": "An angle in degrees, counter-clockwise as seen from the top.",
+      "type": "number"
+    },
+    "point": {
+      "description": "A point [x, y] in millimetres; x right, y down (section 2.2).",
+      "type": "array",
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/length"
+        },
+        {
+          "$ref": "#/$defs/length"
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "examples": [
+        [
+          12.5,
+          4
+        ]
+      ]
+    },
+    "size": {
+      "description": "A size [width, height] in millimetres.",
+      "type": "array",
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/positive_length"
+        },
+        {
+          "$ref": "#/$defs/positive_length"
+        }
+      ],
+      "items": false,
+      "minItems": 2
+    },
+    "shape": {
+      "description": "An area as SVG path data in the EDX subset: absolute M, L, H, V, A and Z only; every subpath closed; the first subpath is the outer boundary, the rest are holes (section 2.5).",
+      "type": "string",
+      "pattern": "^\\s*M\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s*(?:L\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|H\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|V\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|A\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)[01](?:\\s+|\\s*,\\s*)[01](?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?))+\\s*Z(?:\\s*M\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s*(?:L\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|H\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|V\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?|A\\s*-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)[01](?:\\s+|\\s*,\\s*)[01](?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:\\s+|\\s*,\\s*)-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?))+\\s*Z)*\\s*$",
+      "examples": [
+        "M 0 0 H 30 V 20 H 0 Z"
+      ]
+    },
+    "shapes": {
+      "description": "One or more shapes, covering their union.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shape"
+      },
+      "minItems": 1
+    },
+    "side": {
+      "description": "A side of the board.",
+      "enum": [
+        "top",
+        "bottom"
+      ]
+    },
+    "pad_ref": {
+      "description": "A pad on the board. Display form part.pad, never parsed (section 2.6).",
+      "type": "object",
+      "properties": {
+        "part": {
+          "description": "Part reference.",
+          "$ref": "#/$defs/name"
+        },
+        "pad": {
+          "description": "Pad number, as a name.",
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "part",
+        "pad"
+      ],
+      "examples": [
+        {
+          "part": "C5",
+          "pad": "1"
+        }
+      ]
+    },
+    "hash": {
+      "description": "A section hash (section 13.2).",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "inputs": {
+      "description": "Hashes of the sections a result was made from (section 11).",
+      "type": "object",
+      "properties": {
+        "design": {
+          "$ref": "#/$defs/hash"
+        },
+        "rules": {
+          "$ref": "#/$defs/hash"
+        },
+        "constraints": {
+          "$ref": "#/$defs/hash"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "zone_connection": {
+      "description": "How copper fill connects to a pad.",
+      "type": "object",
+      "properties": {
+        "mode": {
+          "enum": [
+            "solid",
+            "thermal",
+            "none"
+          ]
+        },
+        "spoke_width": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "gap": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ]
+    },
+    "layer": {
+      "description": "A copper layer. The stack-up runs top first; the first is named top and the last bottom.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "role": {
+          "enum": [
+            "signal",
+            "plane"
+          ]
+        },
+        "routable": {
+          "type": "boolean"
+        },
+        "plane_net": {
+          "description": "For a plane layer, the net that fills it.",
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "role",
+        "routable"
+      ],
+      "if": {
+        "properties": {
+          "role": {
+            "const": "plane"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "plane_net"
+        ]
+      }
+    },
+    "board": {
+      "description": "The board (section 5.1).",
+      "type": "object",
+      "properties": {
+        "outline": {
+          "description": "The board's shape; holes are cut-outs.",
+          "$ref": "#/$defs/shapes"
+        },
+        "stackup": {
+          "description": "Copper layers in order, top first.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/layer"
+          },
+          "minItems": 2
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "outline",
+        "stackup"
+      ]
+    },
+    "drill": {
+      "description": "A round hole or a slot.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "diameter": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "diameter"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "slot": {
+              "$ref": "#/$defs/size"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "slot"
+          ]
+        }
+      ]
+    },
+    "pad": {
+      "description": "A pad of a package (section 5.2).",
+      "type": "object",
+      "properties": {
+        "number": {
+          "description": "Pad number. Pads sharing a number are one electrical pad.",
+          "$ref": "#/$defs/name"
+        },
+        "kind": {
+          "enum": [
+            "smd",
+            "th",
+            "npth",
+            "edge"
+          ]
+        },
+        "shape": {
+          "enum": [
+            "rect",
+            "roundrect",
+            "circle",
+            "oval",
+            "polygon"
+          ]
+        },
+        "size": {
+          "$ref": "#/$defs/size"
+        },
+        "corner_radius": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "outline": {
+          "description": "For a polygon pad: one shape, relative to the pad's position, before rotation.",
+          "$ref": "#/$defs/shape"
+        },
+        "position": {
+          "description": "Relative to the package origin.",
+          "$ref": "#/$defs/point"
+        },
+        "rotation": {
+          "$ref": "#/$defs/angle",
+          "default": 0
+        },
+        "layers": {
+          "enum": [
+            "top",
+            "bottom",
+            "through"
+          ]
+        },
+        "drill": {
+          "$ref": "#/$defs/drill"
+        },
+        "zone_connection": {
+          "$ref": "#/$defs/zone_connection"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "number",
+        "kind",
+        "shape",
+        "position",
+        "layers"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "shape": {
+                "const": "polygon"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "outline"
+            ],
+            "not": {
+              "required": [
+                "size"
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "size"
+            ],
+            "not": {
+              "required": [
+                "outline"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "shape": {
+                "const": "roundrect"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "corner_radius"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "corner_radius"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "th",
+                  "npth"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "drill"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "drill"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "package": {
+      "description": "Footprint geometry, as seen from the top (section 5.2).",
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/name"
+        },
+        "class": {
+          "description": "Package class (registry).",
+          "anyOf": [
+            {
+              "enum": [
+                "ic",
+                "passive",
+                "connector",
+                "mechanical",
+                "other"
+              ]
+            },
+            {
+              "$ref": "#/$defs/extension_name"
+            }
+          ]
+        },
+        "pads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pad"
+          },
+          "minItems": 1
+        },
+        "courtyard": {
+          "description": "Courtyard on the package's own side; the other side optional.",
+          "type": "object",
+          "properties": {
+            "top": {
+              "$ref": "#/$defs/shapes"
+            },
+            "bottom": {
+              "$ref": "#/$defs/shapes"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "top"
+          ]
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "outline": {
+              "$ref": "#/$defs/shapes"
+            },
+            "height": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "outline",
+            "height"
+          ]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "class",
+        "pads",
+        "courtyard"
+      ]
+    },
+    "placement": {
+      "description": "free: no position until an engine gives one. fixed: the position is mandated (section 5.3).",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "free"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "fixed"
+            },
+            "at": {
+              "$ref": "#/$defs/point"
+            },
+            "angle": {
+              "$ref": "#/$defs/angle"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "at",
+            "angle"
+          ]
+        }
+      ]
+    },
+    "part": {
+      "description": "A part on the board (section 5.3).",
+      "type": "object",
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/name"
+        },
+        "package": {
+          "description": "The id of a package in the document.",
+          "$ref": "#/$defs/name"
+        },
+        "value": {
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/$defs/side"
+        },
+        "placement": {
+          "$ref": "#/$defs/placement"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "package",
+        "side",
+        "placement"
+      ]
+    },
+    "net": {
+      "description": "A net (section 5.4).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "pads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pad_ref"
+          },
+          "minItems": 1
+        },
+        "class": {
+          "description": "A net class in rules; default when absent.",
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "pads"
+      ]
+    },
+    "owner": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "part": {
+              "$ref": "#/$defs/name"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "part"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "block": {
+              "$ref": "#/$defs/name"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "block"
+          ]
+        }
+      ]
+    },
+    "region": {
+      "description": "A named area that excludes things (section 5.5).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "outline": {
+          "$ref": "#/$defs/shapes"
+        },
+        "layers": {
+          "anyOf": [
+            {
+              "const": "all"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/name"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          ]
+        },
+        "excludes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "parts",
+              "pads",
+              "tracks",
+              "vias",
+              "pours"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "except_nets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/name"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "owner": {
+          "$ref": "#/$defs/owner"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "outline",
+        "layers",
+        "excludes"
+      ]
+    },
+    "pour": {
+      "description": "Copper fill as design intent (section 5.6).",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/name"
+        },
+        "net": {
+          "$ref": "#/$defs/name"
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/name"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "outline": {
+          "$ref": "#/$defs/shapes"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Higher wins; a plane's own net is 0."
+        },
+        "connection": {
+          "$ref": "#/$defs/zone_connection"
+        },
+        "clearance": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "net",
+        "layers",
+        "outline",
+        "priority"
+      ]
+    },
+    "relation": {
+      "description": "Design intent between two pads, with no values (section 6).",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "description": "Relation kind (registry, section 6.2).",
+          "anyOf": [
+            {
+              "enum": [
+                "decouples",
+                "backs",
+                "filters",
+                "feeds",
+                "clocks",
+                "loads",
+                "near"
+              ]
+            },
+            {
+              "$ref": "#/$defs/extension_name"
+            }
+          ]
+        },
+        "subject": {
+          "$ref": "#/$defs/pad_ref"
+        },
+        "object": {
+          "$ref": "#/$defs/pad_ref"
+        },
+        "id": {
+          "description": "Optional; if stated it must equal kind:subject:object (section 6.1).",
+          "type": "string"
+        },
+        "source": {
+          "description": "Where the relation came from: free text or a URI.",
+          "type": "string"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "subject",
+        "object"
+      ],
+      "examples": [
+        {
+          "kind": "decouples",
+          "subject": {
+            "part": "C5",
+            "pad": "1"
+          },
+          "object": {
+            "part": "U1",
+            "pad": "9"
+          }
+        }
+      ]
+    },
+    "design": {
+      "description": "What the board is (section 5).",
+      "type": "object",
+      "properties": {
+        "board": {
+          "$ref": "#/$defs/board"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/package"
+          }
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          }
+        },
+        "nets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/net"
+          }
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/region"
+          }
+        },
+        "pours": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pour"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "track_width": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "preferred": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "preferred"
+      ]
+    },
+    "via_size": {
+      "type": "object",
+      "properties": {
+        "pad": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "drill": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "pad",
+        "drill"
+      ]
+    },
+    "layer_override": {
+      "description": "Values for one layer, overriding the class.",
+      "type": "object",
+      "properties": {
+        "clearance": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "track_width": {
+          "$ref": "#/$defs/track_width"
+        },
+        "via": {
+          "$ref": "#/$defs/via_size"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "net_class": {
+      "description": "Electrical rules for a net class. Classes other than default take omitted values from default (section 8.2).",
+      "type": "object",
+      "properties": {
+        "clearance": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "track_width": {
+          "$ref": "#/$defs/track_width"
+        },
+        "via": {
+          "$ref": "#/$defs/via_size"
+        },
+        "layers": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/layer_override"
+          }
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "via_policy_value": {
+      "enum": [
+        "in_link",
+        "beside_pad",
+        "none"
+      ]
+    },
+    "measure": {
+      "enum": [
+        "centre",
+        "edge"
+      ]
+    },
+    "relation_rules": {
+      "description": "Values for each relation kind (section 8.3). Unknown keys are errors.",
+      "type": "object",
+      "properties": {
+        "decouples": {
+          "type": "object",
+          "properties": {
+            "max_track": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "square_on_pin": {
+              "type": "boolean"
+            },
+            "via": {
+              "$ref": "#/$defs/via_policy_value"
+            },
+            "adjacent_pins_via": {
+              "$ref": "#/$defs/via_policy_value"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "backs": {
+          "type": "object",
+          "properties": {
+            "max_track": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "max_track": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "feeds": {
+          "type": "object",
+          "properties": {
+            "max_track": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "clocks": {
+          "type": "object",
+          "properties": {
+            "same_layer": {
+              "type": "boolean"
+            },
+            "no_vias": {
+              "type": "boolean"
+            },
+            "matched_tolerance": {
+              "$ref": "#/$defs/non_negative_length"
+            },
+            "quiet_margin": {
+              "$ref": "#/$defs/non_negative_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "loads": {
+          "type": "object",
+          "properties": {
+            "max_track": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "near": {
+          "type": "object",
+          "properties": {
+            "max_distance": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "measure": {
+              "$ref": "#/$defs/measure"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "patternProperties": {
+        "^[a-z][a-z0-9_-]*\\.[a-z][a-z0-9_.-]*$": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules": {
+      "description": "Board minimums, net classes and relation rules (section 8).",
+      "type": "object",
+      "properties": {
+        "board": {
+          "type": "object",
+          "properties": {
+            "copper_to_edge": {
+              "$ref": "#/$defs/non_negative_length"
+            },
+            "hole_to_hole": {
+              "$ref": "#/$defs/non_negative_length"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "classes": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "#/$defs/name"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/net_class"
+          }
+        },
+        "relations": {
+          "$ref": "#/$defs/relation_rules"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "op_pad": {
+      "$ref": "#/$defs/pad_ref"
+    },
+    "op_part": {
+      "type": "object",
+      "properties": {
+        "part": {
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "part"
+      ]
+    },
+    "op_net": {
+      "type": "object",
+      "properties": {
+        "net": {
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "net"
+      ]
+    },
+    "op_block": {
+      "type": "object",
+      "properties": {
+        "block": {
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "block"
+      ]
+    },
+    "op_region": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "$ref": "#/$defs/name"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "region"
+      ]
+    },
+    "op_path": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pad_ref"
+          },
+          "minItems": 2
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ]
+    },
+    "op_relations": {
+      "type": "object",
+      "properties": {
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "relations"
+      ]
+    },
+    "source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "relation": {
+              "type": "string"
+            },
+            "rule": {
+              "type": "string"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "relation",
+            "rule"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "document": {
+              "type": "string"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "document"
+          ]
+        }
+      ]
+    },
+    "constraint_max_track": {
+      "description": "A max_track constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "max_track"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_pad"
+            },
+            {
+              "$ref": "#/$defs/op_pad"
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "value": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_max_distance": {
+      "description": "A max_distance constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "max_distance"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/op_pad"
+                },
+                {
+                  "$ref": "#/$defs/op_part"
+                }
+              ]
+            },
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/op_pad"
+                },
+                {
+                  "$ref": "#/$defs/op_part"
+                }
+              ]
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "value": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "measure": {
+          "$ref": "#/$defs/measure"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value",
+        "measure"
+      ]
+    },
+    "constraint_max_length": {
+      "description": "A max_length constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "max_length"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/op_net"
+                },
+                {
+                  "$ref": "#/$defs/op_path"
+                }
+              ]
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_matched": {
+      "description": "A matched constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "matched"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/op_net"
+          },
+          "minItems": 2
+        },
+        "value": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_square_on_pin": {
+      "description": "A square_on_pin constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "square_on_pin"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_part"
+            },
+            {
+              "$ref": "#/$defs/op_pad"
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "value": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source"
+      ]
+    },
+    "constraint_via_policy": {
+      "description": "A via_policy constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "via_policy"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_relations"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/via_policy_value"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_same_layer": {
+      "description": "A same_layer constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "same_layer"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/op_net"
+              },
+              {
+                "$ref": "#/$defs/op_path"
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source"
+      ]
+    },
+    "constraint_no_vias": {
+      "description": "A no_vias constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "no_vias"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/op_net"
+              },
+              {
+                "$ref": "#/$defs/op_path"
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source"
+      ]
+    },
+    "constraint_quiet": {
+      "description": "A quiet constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "quiet"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/op_part"
+              },
+              {
+                "$ref": "#/$defs/op_net"
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/non_negative_length"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_keepout": {
+      "description": "A keepout constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "keepout"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_region"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source"
+      ]
+    },
+    "constraint_fixed": {
+      "description": "A fixed constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "fixed"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_part"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "at": {
+              "$ref": "#/$defs/point"
+            },
+            "angle": {
+              "$ref": "#/$defs/angle"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "at",
+            "angle"
+          ]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_side": {
+      "description": "A side constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "side"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/op_part"
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "$ref": "#/$defs/side"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_orientation": {
+      "description": "A orientation constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "orientation"
+        },
+        "operands": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/op_part"
+                },
+                {
+                  "$ref": "#/$defs/op_block"
+                }
+              ]
+            }
+          ],
+          "items": false,
+          "minItems": 1
+        },
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/angle"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_block": {
+      "description": "A block constraint.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "const": "block"
+        },
+        "operands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/op_part"
+          },
+          "minItems": 1
+        },
+        "value": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/name"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source",
+        "value"
+      ]
+    },
+    "constraint_extension": {
+      "description": "A constraint type defined by an extension.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hard": {
+          "type": "boolean"
+        },
+        "cost": {
+          "type": "number",
+          "minimum": 0,
+          "default": 1
+        },
+        "origin": {
+          "enum": [
+            "derived",
+            "authored"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "type": {
+          "$ref": "#/$defs/extension_name"
+        },
+        "operands": {
+          "type": "array"
+        },
+        "value": {},
+        "measure": {
+          "type": "string"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "operands",
+        "origin",
+        "source"
+      ]
+    },
+    "constraint": {
+      "description": "An explicit, checkable constraint (section 9).",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/constraint_max_track"
+        },
+        {
+          "$ref": "#/$defs/constraint_max_distance"
+        },
+        {
+          "$ref": "#/$defs/constraint_max_length"
+        },
+        {
+          "$ref": "#/$defs/constraint_matched"
+        },
+        {
+          "$ref": "#/$defs/constraint_square_on_pin"
+        },
+        {
+          "$ref": "#/$defs/constraint_via_policy"
+        },
+        {
+          "$ref": "#/$defs/constraint_same_layer"
+        },
+        {
+          "$ref": "#/$defs/constraint_no_vias"
+        },
+        {
+          "$ref": "#/$defs/constraint_quiet"
+        },
+        {
+          "$ref": "#/$defs/constraint_keepout"
+        },
+        {
+          "$ref": "#/$defs/constraint_fixed"
+        },
+        {
+          "$ref": "#/$defs/constraint_side"
+        },
+        {
+          "$ref": "#/$defs/constraint_orientation"
+        },
+        {
+          "$ref": "#/$defs/constraint_block"
+        },
+        {
+          "$ref": "#/$defs/constraint_extension"
+        }
+      ]
+    },
+    "constraints": {
+      "description": "Explicit constraints (section 9).",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/constraint"
+      }
+    },
+    "placed_part": {
+      "description": "A part's placement. A placed part has at, angle and side; an unplaced part has none of them.",
+      "type": "object",
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/name"
+        },
+        "placed": {
+          "type": "boolean"
+        },
+        "at": {
+          "$ref": "#/$defs/point"
+        },
+        "angle": {
+          "$ref": "#/$defs/angle"
+        },
+        "side": {
+          "$ref": "#/$defs/side"
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "placed"
+      ],
+      "if": {
+        "properties": {
+          "placed": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "at",
+          "angle",
+          "side"
+        ]
+      },
+      "else": {
+        "properties": {
+          "at": false,
+          "angle": false,
+          "side": false
+        }
+      }
+    },
+    "track": {
+      "type": "object",
+      "properties": {
+        "net": {
+          "$ref": "#/$defs/name"
+        },
+        "layer": {
+          "$ref": "#/$defs/name"
+        },
+        "width": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "start": {
+          "$ref": "#/$defs/point"
+        },
+        "end": {
+          "$ref": "#/$defs/point"
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "net",
+        "layer",
+        "width",
+        "start",
+        "end"
+      ]
+    },
+    "arc": {
+      "type": "object",
+      "properties": {
+        "net": {
+          "$ref": "#/$defs/name"
+        },
+        "layer": {
+          "$ref": "#/$defs/name"
+        },
+        "width": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "start": {
+          "$ref": "#/$defs/point"
+        },
+        "mid": {
+          "$ref": "#/$defs/point"
+        },
+        "end": {
+          "$ref": "#/$defs/point"
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "net",
+        "layer",
+        "width",
+        "start",
+        "mid",
+        "end"
+      ]
+    },
+    "via": {
+      "type": "object",
+      "properties": {
+        "net": {
+          "$ref": "#/$defs/name"
+        },
+        "at": {
+          "$ref": "#/$defs/point"
+        },
+        "pad": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "drill": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "layers": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/name"
+            },
+            {
+              "$ref": "#/$defs/name"
+            }
+          ],
+          "items": false,
+          "minItems": 2
+        },
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "net",
+        "at",
+        "pad",
+        "drill",
+        "layers"
+      ]
+    },
+    "layout": {
+      "description": "What a layout engine did (section 11.1).",
+      "type": "object",
+      "properties": {
+        "inputs": {
+          "$ref": "#/$defs/inputs"
+        },
+        "placement": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/placed_part"
+          }
+        },
+        "copper": {
+          "type": "object",
+          "properties": {
+            "tracks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/track"
+              }
+            },
+            "arcs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/arc"
+              }
+            },
+            "vias": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/via"
+              }
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/region"
+          }
+        },
+        "pours": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pour"
+          }
+        },
+        "groups": {
+          "type": "object",
+          "properties": {
+            "blocks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "$ref": "#/$defs/name"
+                  },
+                  "parts": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/name"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  },
+                  "angles": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/angle"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  },
+                  "extensions": {
+                    "$ref": "#/$defs/extensions"
+                  },
+                  "extras": {
+                    "$ref": "#/$defs/extras"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "parts"
+                ]
+              }
+            },
+            "quiet": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "$ref": "#/$defs/name"
+                  },
+                  "nets": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/name"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                  },
+                  "margin": {
+                    "$ref": "#/$defs/non_negative_length"
+                  },
+                  "extensions": {
+                    "$ref": "#/$defs/extensions"
+                  },
+                  "extras": {
+                    "$ref": "#/$defs/extras"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "nets",
+                  "margin"
+                ]
+              }
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "where": {
+      "description": "Where a finding is.",
+      "type": "object",
+      "properties": {
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/name"
+          }
+        },
+        "nets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/name"
+          }
+        },
+        "pads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pad_ref"
+          }
+        },
+        "at": {
+          "$ref": "#/$defs/point"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    },
+    "report_item": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/op_part"
+        },
+        {
+          "$ref": "#/$defs/op_block"
+        }
+      ]
+    },
+    "report": {
+      "description": "The status of every constraint, and the gates (section 11.2).",
+      "type": "object",
+      "properties": {
+        "inputs": {
+          "$ref": "#/$defs/inputs"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "met",
+                  "broken",
+                  "not_yet_measurable"
+                ]
+              },
+              "measured": {
+                "type": "number"
+              },
+              "limit": {},
+              "measure": {
+                "type": "string"
+              },
+              "hard": {
+                "type": "boolean"
+              },
+              "cost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "where": {
+                "$ref": "#/$defs/where"
+              },
+              "extensions": {
+                "$ref": "#/$defs/extensions"
+              },
+              "extras": {
+                "$ref": "#/$defs/extras"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status",
+              "hard"
+            ]
+          }
+        },
+        "unplaced": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/name"
+          },
+          "uniqueItems": true
+        },
+        "overlaps": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "$ref": "#/$defs/report_item"
+              },
+              {
+                "$ref": "#/$defs/report_item"
+              }
+            ],
+            "items": false,
+            "minItems": 2
+          }
+        },
+        "unrouted": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "net": {
+                "$ref": "#/$defs/name"
+              },
+              "pads": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/pad_ref"
+                },
+                "minItems": 1
+              },
+              "extensions": {
+                "$ref": "#/$defs/extensions"
+              },
+              "extras": {
+                "$ref": "#/$defs/extras"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "net",
+              "pads"
+            ]
+          }
+        },
+        "clearance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "layer": {
+                "$ref": "#/$defs/name"
+              },
+              "at": {
+                "$ref": "#/$defs/point"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/where"
+                },
+                "minItems": 1
+              },
+              "actual": {
+                "$ref": "#/$defs/non_negative_length"
+              },
+              "required": {
+                "$ref": "#/$defs/non_negative_length"
+              },
+              "extensions": {
+                "$ref": "#/$defs/extensions"
+              },
+              "extras": {
+                "$ref": "#/$defs/extras"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "layer",
+              "at",
+              "items",
+              "actual",
+              "required"
+            ]
+          }
+        },
+        "gates": {
+          "type": "object",
+          "properties": {
+            "constraints_met": {
+              "type": "boolean"
+            },
+            "all_placed": {
+              "type": "boolean"
+            },
+            "all_routed": {
+              "type": "boolean"
+            },
+            "clearance_clean": {
+              "type": "boolean"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "constraints_met",
+            "all_placed",
+            "all_routed",
+            "clearance_clean"
+          ]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

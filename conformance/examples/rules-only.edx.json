@@ -1,0 +1,28 @@
+{
+  "edx": "1.0",
+  "rules": {
+    "board": {
+      "copper_to_edge": 0.3,
+      "hole_to_hole": 0.25
+    },
+    "classes": {
+      "default": {
+        "clearance": 0.15,
+        "track_width": {
+          "min": 0.15,
+          "preferred": 0.2
+        },
+        "via": {
+          "pad": 0.6,
+          "drill": 0.3
+        }
+      }
+    },
+    "relations": {
+      "decouples": {
+        "max_track": 2.5,
+        "via": "beside_pad"
+      }
+    }
+  }
+}

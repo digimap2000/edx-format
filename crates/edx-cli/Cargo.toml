@@ -1,0 +1,19 @@
+[package]
+name = "edx-cli"
+description = "Command-line checker and merger for EDX, the Electronics Design eXchange format"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+keywords = ["pcb", "eda", "electronics", "exchange", "cli"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "edx"
+path = "src/main.rs"
+
+[dependencies]
+edx-format = { path = "../edx-format" }
+serde = { workspace = true }
+serde_json = { workspace = true }

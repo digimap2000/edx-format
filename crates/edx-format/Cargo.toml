@@ -1,0 +1,19 @@
+[package]
+name = "edx-format"
+description = "Reference reader, checker and merger for EDX, the Electronics Design eXchange format"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+keywords = ["pcb", "eda", "electronics", "exchange", "json-schema"]
+categories = ["parser-implementations", "encoding"]
+
+[lib]
+name = "edx_format"
+
+[dependencies]
+geo = "0.33.1"
+jsonschema = { version = "0.60.2", default-features = false }
+serde = { workspace = true }
+serde_json = { workspace = true }

@@ -1,22 +1,59 @@
 # Conformance suite
 
-Language-neutral test cases that every EDX implementation runs.
+Language-neutral test cases that every EDX implementation runs. `cases.json` lists them all.
 
-| Folder | Contents | Status |
-| --- | --- | --- |
-| `examples/` | complete synthetic documents, also used by the documentation | started |
-| `valid/` | documents that must be read without error, each naming the clause it exercises | to come |
-| `invalid/` | one fault per case, with the error code and JSON Pointer a conforming reader must report | to come |
-| `canonical/` | an input and its exact canonical output and section hashes | to come |
+| Folder | Contents |
+| --- | --- |
+| `examples/` | complete synthetic documents, also used by the documentation |
+| `valid/` | documents a conforming reader accepts, some with expected warnings |
+| `invalid/` | one fault per document, named after the code a conforming reader must report |
 
-The examples:
+## The case list
 
-- `two-layer.edx.json`: a two-layer board with rounded corners; an IC with its decoupling and bulk capacitors, a
-  fixed connector, a keep-out region and a ground pour; derived and authored constraints.
-- `four-layer-island.edx.json`: four layers with ground and supply planes and a `+1V8` island on the supply plane; a
-  crystal with load capacitors, a filtered core rail, a part-owned region and a requested block.
-- `rules-only.edx.json`: a document holding only rules, to be merged onto a design that has none.
+Each entry in `cases.json` is one case:
 
-Every example is checked against the schema on each pull request.
+```json
+{
+  "name": "unknown-package",
+  "clause": "5.3",
+  "description": "…",
+  "input": "invalid/E2001-unknown-package.edx.json",
+  "expect": {
+    "errors": [{ "code": "EDX-E2001", "pointer": "/design/parts/1/package" }],
+    "warnings": []
+  }
+}
+```
+
+A merge case has `"merge": [first, second]` instead of `input`: the two documents are merged (section 3.2 of the
+specification) and the merge result is checked.
+
+## Passing a case
+
+An implementation passes a case when:
+
+- the errors it reports, as pairs of code and pointer, are exactly the expected errors: no more, no fewer;
+- for `EDX-E1000` (a schema error), each expected pointer has a reported `EDX-E1000` at that pointer or below it,
+  since validators differ in how deep they point;
+- it reports every expected warning (further warnings are allowed);
+- for a merge case, merging in either order gives the same result.
+
+`invalid/` files with codes in `EDX-E0xxx` are deliberately broken bytes, not valid JSON. Read them as bytes.
+
+## Checks run in CI
+
+- `tools/schema_cases.py` checks that the cases agree with the JSON Schema: every case expected to fail on the schema
+  does, and every case expected to reach the semantic checks passes it.
+- The reference implementation runs the whole suite, both from its own tests and through `tools/conformance.py`.
+
+## Running the suite against another implementation
+
+`tools/conformance.py` runs every case through a command-line tool that offers `check --format json FILE` and
+`merge --format json FIRST SECOND`, printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
+successful merge). Each diagnostic needs `code`, `severity` and `pointer`.
+
+```sh
+python tools/conformance.py path/to/your-tool
+```
 
 Licence: CC0 1.0 (see `LICENSE-CC0` in this folder).

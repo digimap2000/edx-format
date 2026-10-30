@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::diagnostic::Diagnostic;
 
 /// The EDX 1.0 JSON Schema, as published.
-pub const SCHEMA: &str = include_str!("../../../schema/1.0/edx.schema.json");
+pub const SCHEMA: &str = include_str!("../schema/edx.schema.json");
 
 fn schema_value() -> Value {
     value().clone()
@@ -62,5 +62,18 @@ fn shorten(message: String) -> String {
     match message.char_indices().nth(LIMIT) {
         Some((cut, _)) => format!("{}…", &message[..cut]),
         None => message,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    /// The crate carries its own copy of the schema so that it can be published; it must match the
+    /// normative one at the top of the repository.
+    #[test]
+    fn embedded_schema_matches_the_published_one() {
+        let published = concat!(env!("CARGO_MANIFEST_DIR"), "/../../schema/1.0/edx.schema.json");
+        if let Ok(text) = std::fs::read_to_string(published) {
+            assert_eq!(text, super::SCHEMA, "copy schema/1.0/edx.schema.json to crates/edx-format/schema/");
+        }
     }
 }

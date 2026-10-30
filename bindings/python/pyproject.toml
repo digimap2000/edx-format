@@ -1,0 +1,28 @@
+[build-system]
+requires = ["maturin>=1.16,<2"]
+build-backend = "maturin"
+
+[project]
+name = "edx-format"
+description = "Reader, checker, merger and writer for EDX, the Electronics Design eXchange format"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+requires-python = ">=3.9"
+keywords = ["pcb", "eda", "electronics", "exchange", "json-schema"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/digimap2000/edx-format"
+
+[project.scripts]
+edx = "edx_format.__main__:main"
+
+[tool.maturin]
+python-source = "python"
+module-name = "edx_format._native"
+features = ["pyo3/extension-module"]

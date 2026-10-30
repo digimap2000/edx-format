@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install check-jsonschema==0.39.0 jsonschema==4.26.0
+      - name: Schema is valid JSON Schema 2020-12
+        run: check-jsonschema --check-metaschema schema/1.0/edx.schema.json
+      - name: Examples are valid EDX
+        run: check-jsonschema --schemafile schema/1.0/edx.schema.json conformance/examples/*.edx.json
+      - name: Conformance cases agree with the schema
+        run: python tools/schema_cases.py
+
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Formatting
+        run: cargo fmt --all --check
+      - name: Lints
+        run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Tests, including the conformance suite
+        run: cargo test --locked
+      - name: Conformance suite through the command-line tool
+        run: |
+          cargo build --locked -p edx-cli
+          python3 tools/conformance.py target/debug/edx
+
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88
+      - run: cargo check --locked --all-targets

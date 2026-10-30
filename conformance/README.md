@@ -44,6 +44,16 @@ An implementation passes a case when:
 
 - `tools/schema_cases.py` checks that the cases agree with the JSON Schema: every case expected to fail on the schema
   does, and every case expected to reach the semantic checks passes it.
-- The reference implementation runs the whole suite (to come).
+- The reference implementation runs the whole suite, both from its own tests and through `tools/conformance.py`.
+
+## Running the suite against another implementation
+
+`tools/conformance.py` runs every case through a command-line tool that offers `check --format json FILE` and
+`merge --format json FIRST SECOND`, printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
+successful merge). Each diagnostic needs `code`, `severity` and `pointer`.
+
+```sh
+python tools/conformance.py path/to/your-tool
+```
 
 Licence: CC0 1.0 (see `LICENSE-CC0` in this folder).

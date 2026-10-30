@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/edx-format", "crates/edx-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/digimap2000/edx-format"
+rust-version = "1.88"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }

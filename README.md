@@ -18,9 +18,44 @@ one. Areas are written as SVG path data.
 | `spec/` | The specification, the normative definition of EDX |
 | `schema/` | The JSON Schema (2020-12) for an EDX document, normative alongside the spec |
 | `conformance/` | Language-neutral test cases and example documents |
+| `crates/edx-format/` | Reference library in Rust: check, read, merge and write EDX documents |
+| `crates/edx-cli/` | `edx`, the command-line checker and merger |
+| `tools/` | Scripts that check the suite against the schema and run it against any implementation |
 
-A reference library (Rust core, with Python and JavaScript packages and a command-line validator) will follow,
-published as `edx-format`.
+## The reference library
+
+The Rust crate `edx-format` checks a document in the four layers of the specification (parse, version and
+extensions, schema, semantics), reads it into a typed model that keeps every `extensions` and `extras` member, merges
+documents by record identity, and writes them back.
+
+```rust
+let checked = edx_format::check(&std::fs::read("board.edx.json")?);
+for diagnostic in &checked.diagnostics {
+    println!("{diagnostic}"); // error EDX-E2001: /design/parts/3/package: no package `SOT23`
+}
+if let Some(document) = checked.document.filter(|_| checked.is_ok()) {
+    println!("{} parts", document.design.and_then(|d| d.parts).map_or(0, |p| p.len()));
+}
+```
+
+The `edx` command does the same from a shell:
+
+```sh
+cargo install --path crates/edx-cli
+edx check board.edx.json                 # exit status 1 when the document has errors
+edx check --format json board.edx.json   # diagnostics as JSON, for other tools
+edx merge design.edx.json rules.edx.json -o merged.edx.json
+edx explain EDX-E3005
+```
+
+Python and JavaScript packages built on the same core will follow.
+
+## Running the conformance suite
+
+```sh
+cargo test                                         # the reference library, including the whole suite
+python tools/conformance.py target/debug/edx       # any implementation with the same command-line interface
+```
 
 ## Licences
 

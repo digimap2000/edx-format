@@ -154,6 +154,11 @@ An EDX document is one JSON file (RFC 8259), UTF-8 without a byte-order mark. It
 - Every section is OPTIONAL. A document holding only `rules` is valid, as is a design with no constraints.
 - `extensions_used` and `extensions_required` are OPTIONAL (section 12.3).
 - Every object MAY carry `extras` (section 12.4) and `extensions` (section 12.3).
+- A reference is checked only against a list the document has. A part's package is checked when `design.packages`
+  is present, a pad reference when `design.parts` is, a net name when `design.nets` is, a layer name when
+  `design.board` is, a region name or relation id when `design` is, and a net's class when `rules.classes` is. A partial document, such as constraints written for
+  a design held elsewhere, is therefore valid on its own; its references are checked once it is merged or made
+  complete (section 4).
 
 | Section | Usually written by | Contents | Section |
 | --- | --- | --- | --- |
@@ -189,11 +194,15 @@ same major version gives one document:
 - `extensions_used` and `extensions_required` are the unions of both lists.
 - Each section is merged record by record, by identity. A record present in only one document is kept. A record
   present in both MUST be identical in both (after rounding, section 2.1); otherwise the merge fails with a conflict.
-- Values that are not records (`design.board.outline`, `rules.board` and its members) MUST be identical when both
-  documents have them; otherwise the merge fails with a conflict.
+- Values that are not records MUST be identical when both documents have them; otherwise the merge fails with a
+  conflict. These are `design.board` as a whole (the stack-up's order matters, so its layers are compared together
+  rather than merged one by one), `rules.board`, and any other member not listed in section 3.1, such as a section's
+  `extensions` entries and `extras` members, compared per key.
 - `layout` and `report` are not merged: a merge of two documents that both have one fails with a conflict.
 
-Merging is therefore commutative and associative: the result never depends on the order of the documents. A tool
+In the result, the records of each list are ordered by identity, and each conflict is reported as `EDX-E2007` at the
+conflicting value in the second document. Merging is therefore commutative and associative: the result never depends
+on the order of the documents. The merged document is then checked like any other. A tool
 that wants one document's values to replace another's MUST remove the old records first, as a separate step.
 
 ## 4. Complete documents
@@ -618,6 +627,7 @@ The pointer locates:
 - for two records sharing an identity, the later record's identity member, in document order;
 - for a missing member, the object that should hold it;
 - for a problem with a whole shape, list or object, that value;
+- for a merge conflict, the conflicting value in the second document;
 - for a parse error, the empty pointer (the whole document).
 
 For a schema error (`EDX-E1000`), validators differ in how deep they point, so the pointer MUST be the object

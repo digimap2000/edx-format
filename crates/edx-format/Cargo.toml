@@ -8,6 +8,10 @@ repository.workspace = true
 rust-version.workspace = true
 keywords = ["pcb", "eda", "electronics", "exchange", "json-schema"]
 categories = ["parser-implementations", "encoding"]
+readme = "README.md"
+documentation = "https://docs.rs/edx-format"
+# The conformance test reads the suite from the repository, so it is not packaged.
+include = ["src/**", "schema/**", "README.md"]
 
 [lib]
 name = "edx_format"

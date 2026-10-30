@@ -1,0 +1,39 @@
+name: pages
+
+# Publishes the schema at https://digimap2000.github.io/edx-format/schema/1.0/edx.schema.json, its $id.
+# Needs Settings > Pages > Source set to "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths: ["schema/**", "site/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp -r site/. _site/
+          cp -r schema _site/schema
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

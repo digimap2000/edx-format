@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EDX schema</title>
+<style>
+  :root { color-scheme: light dark; --fg: #1d1d1f; --bg: #fff; --muted: #5f6368; --link: #0b57d0; }
+  @media (prefers-color-scheme: dark) { :root { --fg: #e8eaed; --bg: #161616; --muted: #9aa0a6; --link: #8ab4f8; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 42rem; margin: 0 auto; padding: 3rem 1rem; }
+  h1 { font-size: 1.6rem; margin: 0 0 .5rem; }
+  p { color: var(--muted); }
+  a { color: var(--link); }
+  code { font: 14px ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <h1>EDX, the Electronics Design eXchange</h1>
+  <p>An open, tool-neutral JSON format for printed circuit board design data.</p>
+  <ul>
+    <li>JSON Schema, version 1.x: <a href="schema/1.0/edx.schema.json"><code>schema/1.0/edx.schema.json</code></a></li>
+    <li>Specification, conformance suite and reference library:
+      <a href="https://github.com/digimap2000/edx-format">github.com/digimap2000/edx-format</a></li>
+  </ul>
+</main>
+</body>
+</html>

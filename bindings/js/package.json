@@ -1,0 +1,25 @@
+{
+  "name": "edx-format",
+  "version": "0.1.0",
+  "description": "Reader, checker, merger and writer for EDX, the Electronics Design eXchange format",
+  "license": "MIT OR Apache-2.0",
+  "repository": { "type": "git", "url": "git+https://github.com/digimap2000/edx-format.git", "directory": "bindings/js" },
+  "keywords": ["pcb", "eda", "electronics", "exchange", "json-schema"],
+  "types": "./index.d.ts",
+  "main": "./js/index.cjs",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "node": { "import": "./js/node.mjs", "require": "./js/index.cjs" },
+      "default": "./js/bundler.mjs"
+    }
+  },
+  "bin": { "edx": "./bin/edx.cjs" },
+  "files": ["js/", "bin/", "pkg/", "index.d.ts", "README.md"],
+  "sideEffects": false,
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "./build.sh",
+    "test": "node --test"
+  }
+}

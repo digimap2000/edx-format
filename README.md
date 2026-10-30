@@ -20,6 +20,9 @@ one. Areas are written as SVG path data.
 | `conformance/` | Language-neutral test cases and example documents |
 | `crates/edx-format/` | Reference library in Rust: check, read, merge and write EDX documents |
 | `crates/edx-cli/` | `edx`, the command-line checker and merger |
+| `bindings/python/` | The Python package `edx-format`, built on the Rust library |
+| `bindings/js/` | The JavaScript package `edx-format`, the Rust library compiled to WebAssembly |
+| `site/` | The GitHub Pages site that serves the schema at its `$id` |
 | `tools/` | Scripts that check the suite against the schema and run it against any implementation |
 
 ## The reference library
@@ -51,13 +54,29 @@ edx hash board.edx.json                  # sha256 of the design, rules and const
 edx explain EDX-E3005
 ```
 
-Python and JavaScript packages built on the same core will follow.
+To depend on it from another Rust project before it is on crates.io:
+
+```toml
+edx-format = { git = "https://github.com/digimap2000/edx-format" }
+```
+
+## Python and JavaScript
+
+Both packages wrap the same Rust core, so their results match it exactly, and both install the same `edx` command.
+Documents are plain dictionaries or objects. See [`bindings/python`](bindings/python/README.md) and
+[`bindings/js`](bindings/js/README.md).
+
+```sh
+pip install ./bindings/python                      # needs a Rust toolchain; builds with maturin
+cd bindings/js && npm run build && npm test        # needs the wasm32 target and wasm-bindgen-cli
+```
 
 ## Running the conformance suite
 
 ```sh
 cargo test                                         # the reference library, including the whole suite
 python tools/conformance.py target/debug/edx       # any implementation with the same command-line interface
+python tools/conformance.py node bindings/js/bin/edx.cjs
 ```
 
 ## Licences

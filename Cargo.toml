@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
-members = ["crates/edx-format", "crates/edx-cli"]
+members = ["crates/edx-format", "crates/edx-cli", "bindings/python", "bindings/js"]
+# The bindings build with maturin and wasm-bindgen; plain cargo commands leave them out.
+default-members = ["crates/edx-format", "crates/edx-cli"]
 
 [workspace.package]
 version = "0.1.0"

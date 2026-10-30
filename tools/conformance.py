@@ -12,6 +12,7 @@ Each diagnostic has at least "code", "severity" and "pointer". The exit status i
 
 Usage: python tools/conformance.py [--verbose] TOOL [ARGS...]
 For example: python tools/conformance.py target/debug/edx
+             python tools/conformance.py node bindings/js/bin/edx.cjs
 """
 
 import json
@@ -82,8 +83,8 @@ def main():
     tool = [a for a in args if a != "--verbose"]
     if not tool:
         raise SystemExit(__doc__)
-    if Path(tool[0]).exists():
-        tool[0] = str(Path(tool[0]).resolve())
+    # The tool runs from inside the suite, so paths given relative to here must be made absolute.
+    tool = [str(Path(a).resolve()) if Path(a).exists() else a for a in tool]
     cases = json.loads((SUITE / "cases.json").read_text())["cases"]
     failed = 0
     for case in cases:

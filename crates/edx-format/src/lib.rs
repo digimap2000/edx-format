@@ -136,9 +136,7 @@ pub fn to_string(document: &Document) -> String {
     to_string_value(&serde_json::to_value(document).expect("a document always serialises"))
 }
 
-/// Writes JSON as an EDX tool would: indented by two spaces, ending with a newline.
+/// Writes JSON as an EDX tool would: indented by two spaces, numbers in plain decimal, ending with a newline.
 pub fn to_string_value(value: &Value) -> String {
-    let mut s = serde_json::to_string_pretty(value).expect("a JSON value always serialises");
-    s.push('\n');
-    s
+    canonical::write_plain(value)
 }

@@ -39,6 +39,52 @@ jobs:
           cargo build --locked -p edx-cli
           python3 tools/conformance.py target/debug/edx
 
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Lints
+        run: cargo clippy --locked -p edx-format-python -- -D warnings
+      - name: Build and install the wheel
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install maturin==1.16.0 pytest
+          .venv/bin/maturin build --release --locked -m bindings/python/Cargo.toml -o dist
+          .venv/bin/pip install dist/*.whl
+      - name: Tests
+        run: .venv/bin/pytest -q bindings/python/tests
+      - name: Conformance suite through the Python command
+        run: python3 tools/conformance.py .venv/bin/edx
+
+  js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@0.2.130
+      - name: Lints
+        run: cargo clippy --locked -p edx-format-js --target wasm32-unknown-unknown -- -D warnings
+      - name: Build
+        run: bindings/js/build.sh
+      - name: Tests
+        run: npm test --prefix bindings/js
+      - name: Conformance suite through the JavaScript command
+        run: python3 tools/conformance.py node bindings/js/bin/edx.cjs
+
   msrv:
     runs-on: ubuntu-latest
     steps:

@@ -392,12 +392,31 @@ fn ordered(map: Map<String, Value>, schema: &Value, defs: &Value) -> Map<String,
 /// members of `extensions` and `extras` values sorted by name. Numbers inside those are not rounded.
 pub fn write(value: &Value) -> String {
     let mut out = String::new();
-    write_value(value, 0, false, &mut out);
+    write_value(value, 0, Mode::Canonical, &mut out);
     out.push('\n');
     out
 }
 
-fn write_value(v: &Value, depth: usize, free: bool, out: &mut String) {
+/// Writes JSON as given, in the same layout: two-space indent, LF, a final newline, numbers in
+/// plain decimal (never exponent notation, section 2.1), members in their order.
+pub fn write_plain(value: &Value) -> String {
+    let mut out = String::new();
+    write_value(value, 0, Mode::Plain, &mut out);
+    out.push('\n');
+    out
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Mode {
+    /// Canonical numbers and order.
+    Canonical,
+    /// Inside `extensions` or `extras` in canonical form: members sorted, numbers not rounded.
+    Free,
+    /// As given, numbers not rounded.
+    Plain,
+}
+
+fn write_value(v: &Value, depth: usize, mode: Mode, out: &mut String) {
     let indent = |out: &mut String, d: usize| {
         out.push('\n');
         out.extend(std::iter::repeat_n("  ", d));
@@ -408,7 +427,7 @@ fn write_value(v: &Value, depth: usize, free: bool, out: &mut String) {
             (Some(i), _, _) => out.push_str(&i.to_string()),
             (_, Some(u), _) => out.push_str(&u.to_string()),
             // Inside extensions and extras numbers are someone else's data: not rounded.
-            (_, _, Some(f)) if free => out.push_str(&plain(f)),
+            (_, _, Some(f)) if mode != Mode::Canonical => out.push_str(&plain(f)),
             (_, _, Some(f)) => out.push_str(&number(f)),
             _ => out.push_str(&n.to_string()),
         },
@@ -420,7 +439,7 @@ fn write_value(v: &Value, depth: usize, free: bool, out: &mut String) {
                     out.push(',');
                 }
                 indent(out, depth + 1);
-                write_value(item, depth + 1, free, out);
+                write_value(item, depth + 1, mode, out);
             }
             indent(out, depth);
             out.push(']');
@@ -428,7 +447,7 @@ fn write_value(v: &Value, depth: usize, free: bool, out: &mut String) {
         Value::Object(map) if map.is_empty() => out.push_str("{}"),
         Value::Object(map) => {
             let mut entries: Vec<(&String, &Value)> = map.iter().collect();
-            if free {
+            if mode == Mode::Free {
                 entries.sort_by_key(|(k, _)| *k);
             }
             out.push('{');
@@ -439,7 +458,11 @@ fn write_value(v: &Value, depth: usize, free: bool, out: &mut String) {
                 indent(out, depth + 1);
                 out.push_str(&Value::String(k.clone()).to_string());
                 out.push_str(": ");
-                write_value(item, depth + 1, free || k == "extensions" || k == "extras", out);
+                let inner = match mode {
+                    Mode::Canonical if k == "extensions" || k == "extras" => Mode::Free,
+                    m => m,
+                };
+                write_value(item, depth + 1, inner, out);
             }
             indent(out, depth);
             out.push('}');
@@ -481,6 +504,12 @@ mod tests {
         assert_eq!(canonical_shape(ccw), ccw);
         let cw = "M 1 0 H 29 A 1 1 0 0 1 30 1 V 19 A 1 1 0 0 1 29 20 H 1 A 1 1 0 0 1 0 19 V 1 A 1 1 0 0 1 1 0 Z";
         assert_eq!(canonical_shape(cw), ccw);
+    }
+
+    #[test]
+    fn plain_writing_never_uses_exponents() {
+        let v = serde_json::json!({ "b": 0.00000005, "a": 1e20 });
+        assert_eq!(write_plain(&v), "{\n  \"b\": 0.00000005,\n  \"a\": 100000000000000000000\n}\n");
     }
 
     #[test]

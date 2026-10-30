@@ -1,0 +1,841 @@
+{
+  "edx": "1.0",
+  "design": {
+    "board": {
+      "outline": [
+        "M 0 0 V 25 H 25 V 0 Z"
+      ],
+      "stackup": [
+        {
+          "name": "top",
+          "role": "signal",
+          "routable": true
+        },
+        {
+          "name": "In1",
+          "role": "plane",
+          "routable": false,
+          "plane_net": "GND"
+        },
+        {
+          "name": "In2",
+          "role": "plane",
+          "routable": false,
+          "plane_net": "+3V3"
+        },
+        {
+          "name": "bottom",
+          "role": "signal",
+          "routable": true
+        }
+      ]
+    },
+    "packages": [
+      {
+        "id": "C0402",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              -0.48,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              0.48,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+          ]
+        }
+      },
+      {
+        "id": "L0603",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.75,
+              0.9
+            ],
+            "corner_radius": 0.1,
+            "position": [
+              -0.775,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.75,
+              0.9
+            ],
+            "corner_radius": 0.1,
+            "position": [
+              0.775,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.48 -0.73 V 0.73 H 1.48 V -0.73 Z"
+          ]
+        }
+      },
+      {
+        "id": "SOIC-8",
+        "class": "ic",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "3",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "4",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "5",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "6",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "7",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "8",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -1.905
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -3.75 -2.7 V 2.7 H 3.75 V -2.7 Z"
+          ]
+        }
+      },
+      {
+        "id": "XTAL-3225",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.4,
+              1.2
+            ],
+            "position": [
+              -1.1,
+              0.8
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.4,
+              1.2
+            ],
+            "position": [
+              1.1,
+              0.8
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "3",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.4,
+              1.2
+            ],
+            "position": [
+              1.1,
+              -0.8
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "4",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.4,
+              1.2
+            ],
+            "position": [
+              -1.1,
+              -0.8
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -2.05 -1.65 V 1.65 H 2.05 V -1.65 Z"
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "ref": "C3",
+        "package": "C0402",
+        "value": "12pF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "C4",
+        "package": "C0402",
+        "value": "12pF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "C5",
+        "package": "C0402",
+        "value": "1uF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "FB1",
+        "package": "L0603",
+        "value": "600R@100MHz",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "U1",
+        "package": "SOIC-8",
+        "value": "MCU",
+        "side": "top",
+        "placement": {
+          "kind": "fixed",
+          "at": [
+            12.5,
+            12.5
+          ],
+          "angle": 0
+        }
+      },
+      {
+        "ref": "X1",
+        "package": "XTAL-3225",
+        "value": "16MHz",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      }
+    ],
+    "nets": [
+      {
+        "name": "+1V8",
+        "pads": [
+          {
+            "part": "C5",
+            "pad": "1"
+          },
+          {
+            "part": "FB1",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "7"
+          }
+        ],
+        "class": "Supply"
+      },
+      {
+        "name": "+3V3",
+        "pads": [
+          {
+            "part": "FB1",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "8"
+          }
+        ],
+        "class": "Supply"
+      },
+      {
+        "name": "GND",
+        "pads": [
+          {
+            "part": "C3",
+            "pad": "2"
+          },
+          {
+            "part": "C4",
+            "pad": "2"
+          },
+          {
+            "part": "C5",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "4"
+          },
+          {
+            "part": "X1",
+            "pad": "2"
+          },
+          {
+            "part": "X1",
+            "pad": "4"
+          }
+        ]
+      },
+      {
+        "name": "XIN",
+        "pads": [
+          {
+            "part": "C3",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "2"
+          },
+          {
+            "part": "X1",
+            "pad": "1"
+          }
+        ]
+      },
+      {
+        "name": "XOUT",
+        "pads": [
+          {
+            "part": "C4",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "3"
+          },
+          {
+            "part": "X1",
+            "pad": "3"
+          }
+        ]
+      }
+    ],
+    "regions": [
+      {
+        "name": "X1-quiet",
+        "outline": [
+          "M -3 -2.5 V 2.5 H 3 V -2.5 Z"
+        ],
+        "layers": "all",
+        "excludes": [
+          "tracks",
+          "vias"
+        ],
+        "except_nets": [
+          "GND",
+          "XIN",
+          "XOUT"
+        ],
+        "owner": {
+          "part": "X1"
+        }
+      }
+    ],
+    "pours": [
+      {
+        "name": "+1V8-island",
+        "net": "+1V8",
+        "layers": [
+          "In2"
+        ],
+        "outline": [
+          "M 8 8 V 14 H 14 V 8 Z"
+        ],
+        "priority": 1
+      }
+    ],
+    "relations": [
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "X1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "2"
+        }
+      },
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "X1",
+          "pad": "3"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "3"
+        }
+      },
+      {
+        "kind": "feeds",
+        "subject": {
+          "part": "FB1",
+          "pad": "2"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "7"
+        }
+      },
+      {
+        "kind": "filters",
+        "subject": {
+          "part": "C5",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "7"
+        }
+      },
+      {
+        "kind": "loads",
+        "subject": {
+          "part": "C3",
+          "pad": "1"
+        },
+        "object": {
+          "part": "X1",
+          "pad": "1"
+        }
+      },
+      {
+        "kind": "loads",
+        "subject": {
+          "part": "C4",
+          "pad": "1"
+        },
+        "object": {
+          "part": "X1",
+          "pad": "3"
+        }
+      }
+    ]
+  },
+  "rules": {
+    "classes": {
+      "Supply": {
+        "track_width": {
+          "min": 0.3,
+          "preferred": 0.4
+        }
+      },
+      "default": {
+        "clearance": 0.15,
+        "track_width": {
+          "min": 0.15,
+          "preferred": 0.2
+        },
+        "via": {
+          "pad": 0.6,
+          "drill": 0.3
+        }
+      }
+    },
+    "relations": {
+      "clocks": {
+        "same_layer": true,
+        "no_vias": true,
+        "matched_tolerance": 0.5,
+        "quiet_margin": 0.5
+      },
+      "feeds": {
+        "max_track": 5
+      },
+      "filters": {
+        "max_track": 5
+      },
+      "loads": {
+        "max_track": 3
+      }
+    }
+  },
+  "constraints": [
+    {
+      "id": "block:crystal",
+      "type": "block",
+      "operands": [
+        {
+          "part": "C3"
+        },
+        {
+          "part": "C4"
+        },
+        {
+          "part": "X1"
+        }
+      ],
+      "value": {
+        "name": "crystal"
+      },
+      "origin": "authored",
+      "source": {
+        "document": "Keep the crystal and its load capacitors as one group."
+      }
+    },
+    {
+      "id": "matched:XIN:XOUT",
+      "type": "matched",
+      "operands": [
+        {
+          "net": "XIN"
+        },
+        {
+          "net": "XOUT"
+        }
+      ],
+      "value": 0.5,
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.1:U1.2",
+        "rule": "clocks.matched_tolerance"
+      }
+    },
+    {
+      "id": "max_track:C3.1:X1.1",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C3",
+          "pad": "1"
+        },
+        {
+          "part": "X1",
+          "pad": "1"
+        }
+      ],
+      "value": 3,
+      "origin": "derived",
+      "source": {
+        "relation": "loads:C3.1:X1.1",
+        "rule": "loads.max_track"
+      }
+    },
+    {
+      "id": "max_track:C4.1:X1.3",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C4",
+          "pad": "1"
+        },
+        {
+          "part": "X1",
+          "pad": "3"
+        }
+      ],
+      "value": 3,
+      "origin": "derived",
+      "source": {
+        "relation": "loads:C4.1:X1.3",
+        "rule": "loads.max_track"
+      }
+    },
+    {
+      "id": "max_track:C5.1:U1.7",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C5",
+          "pad": "1"
+        },
+        {
+          "part": "U1",
+          "pad": "7"
+        }
+      ],
+      "value": 5,
+      "origin": "derived",
+      "source": {
+        "relation": "filters:C5.1:U1.7",
+        "rule": "filters.max_track"
+      }
+    },
+    {
+      "id": "max_track:FB1.2:U1.7",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "FB1",
+          "pad": "2"
+        },
+        {
+          "part": "U1",
+          "pad": "7"
+        }
+      ],
+      "value": 5,
+      "origin": "derived",
+      "source": {
+        "relation": "feeds:FB1.2:U1.7",
+        "rule": "feeds.max_track"
+      }
+    },
+    {
+      "id": "no_vias:X1.1-U1.2",
+      "type": "no_vias",
+      "operands": [
+        {
+          "path": [
+            {
+              "part": "X1",
+              "pad": "1"
+            },
+            {
+              "part": "U1",
+              "pad": "2"
+            }
+          ]
+        }
+      ],
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.1:U1.2",
+        "rule": "clocks.no_vias"
+      }
+    },
+    {
+      "id": "no_vias:X1.3-U1.3",
+      "type": "no_vias",
+      "operands": [
+        {
+          "path": [
+            {
+              "part": "X1",
+              "pad": "3"
+            },
+            {
+              "part": "U1",
+              "pad": "3"
+            }
+          ]
+        }
+      ],
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.3:U1.3",
+        "rule": "clocks.no_vias"
+      }
+    },
+    {
+      "id": "quiet:X1:XIN:XOUT",
+      "type": "quiet",
+      "operands": [
+        {
+          "part": "X1"
+        },
+        {
+          "net": "XIN"
+        },
+        {
+          "net": "XOUT"
+        }
+      ],
+      "value": 0.5,
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.1:U1.2",
+        "rule": "clocks.quiet_margin"
+      }
+    },
+    {
+      "id": "same_layer:X1.1-U1.2",
+      "type": "same_layer",
+      "operands": [
+        {
+          "path": [
+            {
+              "part": "X1",
+              "pad": "1"
+            },
+            {
+              "part": "U1",
+              "pad": "2"
+            }
+          ]
+        }
+      ],
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.1:U1.2",
+        "rule": "clocks.same_layer"
+      }
+    },
+    {
+      "id": "same_layer:X1.3-U1.3",
+      "type": "same_layer",
+      "operands": [
+        {
+          "path": [
+            {
+              "part": "X1",
+              "pad": "3"
+            },
+            {
+              "part": "U1",
+              "pad": "3"
+            }
+          ]
+        }
+      ],
+      "origin": "derived",
+      "source": {
+        "relation": "clocks:X1.3:U1.3",
+        "rule": "clocks.same_layer"
+      }
+    }
+  ]
+}

@@ -1,0 +1,544 @@
+{
+  "edx": "1.0",
+  "design": {
+    "board": {
+      "outline": [
+        "M 1 0 A 1 1 0 0 0 0 1 V 19 A 1 1 0 0 0 1 20 H 29 A 1 1 0 0 0 30 19 V 1 A 1 1 0 0 0 29 0 Z"
+      ],
+      "stackup": [
+        {
+          "name": "top",
+          "role": "signal",
+          "routable": true
+        },
+        {
+          "name": "bottom",
+          "role": "signal",
+          "routable": true
+        }
+      ]
+    },
+    "packages": [
+      {
+        "id": "C0402",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              -0.48,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              0.48,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+          ]
+        }
+      },
+      {
+        "id": "C0805",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              1,
+              1.45
+            ],
+            "corner_radius": 0.25,
+            "position": [
+              -0.95,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              1,
+              1.45
+            ],
+            "corner_radius": 0.25,
+            "position": [
+              0.95,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.7 -0.98 V 0.98 H 1.7 V -0.98 Z"
+          ]
+        }
+      },
+      {
+        "id": "HDR-1x2-2.54",
+        "class": "connector",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "th",
+            "shape": "rect",
+            "size": [
+              1.7,
+              1.7
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "layers": "through",
+            "drill": {
+              "diameter": 1
+            }
+          },
+          {
+            "number": "2",
+            "kind": "th",
+            "shape": "circle",
+            "size": [
+              1.7,
+              1.7
+            ],
+            "position": [
+              0,
+              2.54
+            ],
+            "layers": "through",
+            "drill": {
+              "diameter": 1
+            }
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.27 -1.27 V 3.81 H 1.27 V -1.27 Z"
+          ]
+        }
+      },
+      {
+        "id": "SOIC-8",
+        "class": "ic",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "3",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "4",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "5",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "6",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "7",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "8",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -1.905
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -3.75 -2.7 V 2.7 H 3.75 V -2.7 Z"
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "ref": "C1",
+        "package": "C0402",
+        "value": "100nF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "C2",
+        "package": "C0805",
+        "value": "10uF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "J1",
+        "package": "HDR-1x2-2.54",
+        "value": "power in",
+        "side": "top",
+        "placement": {
+          "kind": "fixed",
+          "at": [
+            3,
+            10
+          ],
+          "angle": 0
+        }
+      },
+      {
+        "ref": "U1",
+        "package": "SOIC-8",
+        "value": "regulator",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      }
+    ],
+    "nets": [
+      {
+        "name": "+3V3",
+        "pads": [
+          {
+            "part": "C1",
+            "pad": "1"
+          },
+          {
+            "part": "C2",
+            "pad": "1"
+          },
+          {
+            "part": "J1",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "8"
+          }
+        ],
+        "class": "Supply"
+      },
+      {
+        "name": "GND",
+        "pads": [
+          {
+            "part": "C1",
+            "pad": "2"
+          },
+          {
+            "part": "C2",
+            "pad": "2"
+          },
+          {
+            "part": "J1",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "4"
+          }
+        ]
+      }
+    ],
+    "regions": [
+      {
+        "name": "logo",
+        "outline": [
+          "M 24 14 V 18 H 28 V 14 Z"
+        ],
+        "layers": "all",
+        "excludes": [
+          "parts",
+          "tracks",
+          "vias"
+        ]
+      }
+    ],
+    "pours": [
+      {
+        "name": "GND-bottom",
+        "net": "GND",
+        "layers": [
+          "bottom"
+        ],
+        "outline": [
+          "M 0.5 0.5 V 19.5 H 29.5 V 0.5 Z"
+        ],
+        "priority": 1
+      }
+    ],
+    "relations": [
+      {
+        "kind": "backs",
+        "subject": {
+          "part": "C2",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "8"
+        }
+      },
+      {
+        "kind": "decouples",
+        "subject": {
+          "part": "C1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "8"
+        }
+      }
+    ]
+  },
+  "rules": {
+    "board": {
+      "copper_to_edge": 0.3,
+      "hole_to_hole": 0.25
+    },
+    "classes": {
+      "Supply": {
+        "track_width": {
+          "min": 0.3,
+          "preferred": 0.5
+        }
+      },
+      "default": {
+        "clearance": 0.15,
+        "track_width": {
+          "min": 0.15,
+          "preferred": 0.2
+        },
+        "via": {
+          "pad": 0.6,
+          "drill": 0.3
+        }
+      }
+    },
+    "relations": {
+      "backs": {
+        "max_track": 6
+      },
+      "decouples": {
+        "max_track": 2.5,
+        "square_on_pin": true,
+        "via": "beside_pad",
+        "adjacent_pins_via": "beside_pad"
+      }
+    }
+  },
+  "constraints": [
+    {
+      "id": "max_distance:J1:C2",
+      "type": "max_distance",
+      "operands": [
+        {
+          "part": "J1"
+        },
+        {
+          "part": "C2"
+        }
+      ],
+      "value": 5,
+      "measure": "edge",
+      "origin": "authored",
+      "source": {
+        "document": "Bulk capacitor close to the power input."
+      }
+    },
+    {
+      "id": "max_track:C1.1:U1.8",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C1",
+          "pad": "1"
+        },
+        {
+          "part": "U1",
+          "pad": "8"
+        }
+      ],
+      "value": 2.5,
+      "origin": "derived",
+      "source": {
+        "relation": "decouples:C1.1:U1.8",
+        "rule": "decouples.max_track"
+      }
+    },
+    {
+      "id": "max_track:C2.1:U1.8",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C2",
+          "pad": "1"
+        },
+        {
+          "part": "U1",
+          "pad": "8"
+        }
+      ],
+      "value": 6,
+      "origin": "derived",
+      "source": {
+        "relation": "backs:C2.1:U1.8",
+        "rule": "backs.max_track"
+      }
+    },
+    {
+      "id": "square_on_pin:C1:U1.8",
+      "type": "square_on_pin",
+      "operands": [
+        {
+          "part": "C1"
+        },
+        {
+          "part": "U1",
+          "pad": "8"
+        }
+      ],
+      "origin": "derived",
+      "source": {
+        "relation": "decouples:C1.1:U1.8",
+        "rule": "decouples.square_on_pin"
+      }
+    },
+    {
+      "id": "via_policy:decouples%3AC1%2E1%3AU1%2E8",
+      "type": "via_policy",
+      "operands": [
+        {
+          "relations": [
+            "decouples:C1.1:U1.8"
+          ]
+        }
+      ],
+      "value": "beside_pad",
+      "origin": "derived",
+      "source": {
+        "relation": "decouples:C1.1:U1.8",
+        "rule": "decouples.via"
+      }
+    }
+  ]
+}

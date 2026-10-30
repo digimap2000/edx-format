@@ -1,0 +1,705 @@
+{
+  "suite": "EDX 1.0 conformance",
+  "cases": [
+    {
+      "name": "minimal",
+      "clause": "3",
+      "description": "Only the version: every section is optional.",
+      "input": "valid/minimal.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "base",
+      "clause": "4",
+      "description": "A small complete document; the invalid cases are built from it.",
+      "input": "valid/base.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "design-only",
+      "clause": "3",
+      "description": "A design without rules: incomplete, which is valid when nothing needs it complete.",
+      "input": "valid/design-only.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "example-two-layer",
+      "clause": "5",
+      "description": "The two-layer example.",
+      "input": "examples/two-layer.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "example-four-layer-island",
+      "clause": "5.6",
+      "description": "The four-layer example.",
+      "input": "examples/four-layer-island.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "example-rules-only",
+      "clause": "3",
+      "description": "The rules-only example.",
+      "input": "examples/rules-only.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "dotted-names",
+      "clause": "2.6",
+      "description": "Part references and pad numbers containing dots; the stated relation id escapes them.",
+      "input": "valid/dotted-names.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "negative-coordinates-with-cutout",
+      "clause": "2.2",
+      "description": "An outline at negative coordinates, with a cut-out.",
+      "input": "valid/negative-coordinates-with-cutout.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "arc-outline",
+      "clause": "2.5",
+      "description": "An outline with circular arcs at its corners.",
+      "input": "valid/arc-outline.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "newer-minor",
+      "clause": "12.1",
+      "description": "A newer minor version with a member this reader does not know: read, with a warning.",
+      "input": "valid/newer-minor.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [
+          {
+            "code": "EDX-W1006",
+            "pointer": "/edx"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-optional-extension",
+      "clause": "12.3",
+      "description": "An extension that is used but not required, and not supported: ignored, with a warning.",
+      "input": "valid/unsupported-optional-extension.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [
+          {
+            "code": "EDX-W1007",
+            "pointer": "/extensions_used/0"
+          }
+        ]
+      }
+    },
+    {
+      "name": "extras",
+      "clause": "12.4",
+      "description": "Application data in extras.",
+      "input": "valid/extras.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "layout-and-report",
+      "clause": "11",
+      "description": "A complete document with a layout and report, as an engine returns it.",
+      "input": "valid/layout-and-report.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "not-json",
+      "clause": "14.1",
+      "description": "Truncated JSON.",
+      "input": "invalid/E0001-not-json.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E0001",
+            "pointer": ""
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "byte-order-mark",
+      "clause": "3",
+      "description": "UTF-8 with a byte-order mark.",
+      "input": "invalid/E0002-byte-order-mark.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E0002",
+            "pointer": ""
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "duplicate-member",
+      "clause": "14.1",
+      "description": "An object with two members of the same name.",
+      "input": "invalid/E0003-duplicate-member.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E0003",
+            "pointer": ""
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "missing-version",
+      "clause": "3",
+      "description": "No edx member.",
+      "input": "invalid/E1001-missing-version.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1001",
+            "pointer": ""
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "version-not-string",
+      "clause": "12.1",
+      "description": "The version written as a number.",
+      "input": "invalid/E1001-version-not-string.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1001",
+            "pointer": "/edx"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "major-version-2",
+      "clause": "12.1",
+      "description": "A major version this reader does not support.",
+      "input": "invalid/E1002-major-version-2.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1002",
+            "pointer": "/edx"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "required-extension",
+      "clause": "12.3",
+      "description": "A required extension this reader does not support.",
+      "input": "invalid/E1003-required-extension.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1003",
+            "pointer": "/extensions_required/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "required-not-used",
+      "clause": "12.3",
+      "description": "A required extension missing from extensions_used (and unsupported).",
+      "input": "invalid/E1004-required-not-used.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1003",
+            "pointer": "/extensions_required/0"
+          },
+          {
+            "code": "EDX-E1004",
+            "pointer": "/extensions_required/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "misspelt-member",
+      "clause": "5.3",
+      "description": "An unknown member, as a misspelling.",
+      "input": "invalid/E1000-misspelt-member.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/parts/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "relative-path-command",
+      "clause": "2.5",
+      "description": "A shape using relative SVG commands.",
+      "input": "invalid/E1000-relative-path-command.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/board/outline/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "through-hole-without-drill",
+      "clause": "5.2",
+      "description": "A through-hole pad with no drill.",
+      "input": "invalid/E1000-through-hole-without-drill.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/packages/1/pads/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unregistered-relation-kind",
+      "clause": "6.2",
+      "description": "A bare relation kind that is not registered.",
+      "input": "invalid/E1000-unregistered-relation-kind.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/relations/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "max-distance-without-measure",
+      "clause": "9.2",
+      "description": "max_distance must state its measure.",
+      "input": "invalid/E1000-max-distance-without-measure.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/constraints/1"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "pad-reference-as-string",
+      "clause": "2.6",
+      "description": "A pad reference written in display form.",
+      "input": "invalid/E1000-pad-reference-as-string.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/nets/0/pads/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-package",
+      "clause": "5.3",
+      "description": "",
+      "input": "invalid/E2001-unknown-package.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2001",
+            "pointer": "/design/parts/1/package"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-part",
+      "clause": "5.4",
+      "description": "",
+      "input": "invalid/E2002-unknown-part.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2002",
+            "pointer": "/design/nets/1/pads/1/part"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-pad",
+      "clause": "5.4",
+      "description": "",
+      "input": "invalid/E2003-unknown-pad.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2003",
+            "pointer": "/design/nets/1/pads/1/pad"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "pad-in-two-nets",
+      "clause": "5.4",
+      "description": "C1.1 is in GND and in VCC; the later occurrence is reported.",
+      "input": "invalid/E2004-pad-in-two-nets.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2004",
+            "pointer": "/design/nets/1/pads/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "undefined-class",
+      "clause": "5.4",
+      "description": "",
+      "input": "invalid/E2005-undefined-class.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2005",
+            "pointer": "/design/nets/0/class"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "duplicate-part",
+      "clause": "3.1",
+      "description": "",
+      "input": "invalid/E2006-duplicate-part.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2006",
+            "pointer": "/design/parts/2/ref"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "duplicate-constraint-id",
+      "clause": "3.1",
+      "description": "",
+      "input": "invalid/E2006-duplicate-constraint-id.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2006",
+            "pointer": "/constraints/1/id"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "layout-on-incomplete-design",
+      "clause": "4",
+      "description": "A layout section on a design with no nets.",
+      "input": "invalid/E2008-layout-on-incomplete-design.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2008",
+            "pointer": "/design"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "wrong-relation-id",
+      "clause": "6.1",
+      "description": "",
+      "input": "invalid/E2009-wrong-relation-id.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2009",
+            "pointer": "/design/relations/0/id"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-net",
+      "clause": "5.6",
+      "description": "",
+      "input": "invalid/E2010-unknown-net.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2010",
+            "pointer": "/design/pours/0/net"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-layer",
+      "clause": "5.6",
+      "description": "",
+      "input": "invalid/E2011-unknown-layer.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2011",
+            "pointer": "/design/pours/0/layers/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-region",
+      "clause": "9.2",
+      "description": "",
+      "input": "invalid/E2012-unknown-region.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2012",
+            "pointer": "/constraints/1/operands/0/region"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "arc-radii-differ",
+      "clause": "2.5",
+      "description": "",
+      "input": "invalid/E3001-arc-radii-differ.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3001",
+            "pointer": "/design/board/outline/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "self-crossing",
+      "clause": "2.5",
+      "description": "A bow-tie outline.",
+      "input": "invalid/E3002-self-crossing.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3002",
+            "pointer": "/design/board/outline/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "hole-outside",
+      "clause": "2.5",
+      "description": "",
+      "input": "invalid/E3003-hole-outside.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3003",
+            "pointer": "/design/board/outline/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "stackup-not-top",
+      "clause": "5.1",
+      "description": "",
+      "input": "invalid/E3004-stackup-not-top.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3004",
+            "pointer": "/design/board/stackup"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "pours-overlap",
+      "clause": "5.6",
+      "description": "",
+      "input": "invalid/E3005-pours-overlap.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3005",
+            "pointer": "/design/pours/1"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "circle-not-round",
+      "clause": "5.2",
+      "description": "",
+      "input": "invalid/E3006-circle-not-round.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3006",
+            "pointer": "/design/packages/1/pads/0/size"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "relation-without-rule",
+      "clause": "4",
+      "description": "A layout on a document whose relation kind has no rule.",
+      "input": "invalid/E4001-relation-without-rule.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E4001",
+            "pointer": "/design/relations/0/kind"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "contradictory-sides",
+      "clause": "9.5",
+      "description": "",
+      "input": "invalid/E4002-contradictory-sides.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E4002",
+            "pointer": "/constraints/2"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unlisted-extension",
+      "clause": "12.3",
+      "description": "An extension relation kind missing from extensions_used.",
+      "input": "invalid/E1005-unlisted-extension.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1005",
+            "pointer": "/design/relations/0/kind"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "merge-design-and-rules",
+      "clause": "3.2",
+      "merge": [
+        "valid/design-only.edx.json",
+        "examples/rules-only.edx.json"
+      ],
+      "description": "A design and a separate set of rules merge without conflict.",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "merge-conflict",
+      "clause": "3.2",
+      "merge": [
+        "valid/base.edx.json",
+        "examples/rules-only.edx.json"
+      ],
+      "description": "Both documents define the decouples rule, with different values.",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2007",
+            "pointer": "/rules/relations/decouples"
+          }
+        ],
+        "warnings": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "edx": "1.0",
+  "design": {
+    "board": {
+      "outline": [
+        "M -5 -5 V 5 H 5 V -5 Z M -1 -1 H 1 V 1 H -1 Z"
+      ],
+      "stackup": [
+        {
+          "name": "top",
+          "role": "signal",
+          "routable": true
+        },
+        {
+          "name": "bottom",
+          "role": "signal",
+          "routable": true
+        }
+      ]
+    },
+    "packages": [
+      {
+        "id": "C0402",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              -0.48,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              0.48,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+          ]
+        }
+      },
+      {
+        "id": "IC2",
+        "class": "ic",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              0.5,
+              0.5
+            ],
+            "position": [
+              -1,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              0.5,
+              0.5
+            ],
+            "position": [
+              1,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.5 -0.5 V 0.5 H 1.5 V -0.5 Z"
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "ref": "C1",
+        "package": "C0402",
+        "value": "100nF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "U1",
+        "package": "IC2",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      }
+    ],
+    "nets": [
+      {
+        "name": "GND",
+        "pads": [
+          {
+            "part": "C1",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "2"
+          }
+        ]
+      },
+      {
+        "name": "VCC",
+        "pads": [
+          {
+            "part": "C1",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "1"
+          }
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "kind": "decouples",
+        "subject": {
+          "part": "C1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "1"
+        }
+      }
+    ]
+  },
+  "rules": {
+    "classes": {
+      "default": {
+        "clearance": 0.15,
+        "track_width": {
+          "min": 0.15,
+          "preferred": 0.2
+        },
+        "via": {
+          "pad": 0.6,
+          "drill": 0.3
+        }
+      }
+    },
+    "relations": {
+      "decouples": {
+        "max_track": 2
+      }
+    }
+  },
+  "constraints": [
+    {
+      "id": "max_track:C1.1:U1.1",
+      "type": "max_track",
+      "operands": [
+        {
+          "part": "C1",
+          "pad": "1"
+        },
+        {
+          "part": "U1",
+          "pad": "1"
+        }
+      ],
+      "value": 2,
+      "origin": "derived",
+      "source": {
+        "relation": "decouples:C1.1:U1.1",
+        "rule": "decouples.max_track"
+      }
+    }
+  ]
+}

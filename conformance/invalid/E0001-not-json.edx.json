@@ -1,0 +1,95 @@
+{
+  "edx": "1.0",
+  "design": {
+    "board": {
+      "outline": [
+        "M 0 0 V 10 H 10 V 0 Z"
+      ],
+      "stackup": [
+        {
+          "name": "top",
+          "role": "signal",
+          "routable": true
+        },
+        {
+          "name": "bottom",
+          "role": "signal",
+          "routable": true
+        }
+      ]
+    },
+    "packages": [
+      {
+        "id": "C0402",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              -0.48,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              0.48,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+          ]
+        }
+      },
+      {
+        "id": "IC2",
+        "class": "ic",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              0.5,
+              0.5
+            ],
+            "position": [
+              -1,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              0.5,
+              0.5
+            ],
+            "position": [
+              1,
+              0
+            ],
+            "layers": "top"
+          }
+        ],

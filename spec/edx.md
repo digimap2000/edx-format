@@ -595,58 +595,84 @@ formatting or order.
 
 ### 14.1 Layers
 
-A reader checks a document in three layers, in order:
+A reader checks a document in four layers, in order, and stops after the first layer that reports an error:
 
-1. **Parse:** JSON syntax and UTF-8.
-2. **Schema:** structure, types, required members and allowed values, against the published JSON Schema.
-3. **Semantics:** every rule in this text that a schema cannot express.
+1. **Parse:** UTF-8 without a byte-order mark, JSON syntax, and no object with two members of the same name.
+2. **Version and extensions:** `edx` present and of a supported major version; every required extension supported
+   (section 12).
+3. **Schema:** structure, types, required members and allowed values, against the published JSON Schema. A
+   document of a newer minor version is checked with unknown members allowed (section 12.1).
+4. **Semantics:** every rule in this text that a schema cannot express. A reader reports every semantic error it
+   finds, not only the first.
+
+Warnings never stop a reader.
 
 ### 14.2 Diagnostics
 
 Every problem a reader reports carries a code, a severity (`error` or `warning`), a JSON Pointer (RFC 6901) to the
-value, and a message. A reader SHOULD add line and column.
+value at fault, and a message. A reader SHOULD add line and column.
 
-### 14.3 Error codes
+The pointer locates:
+
+- for a reference to something that does not exist, the member holding the name (`/design/parts/3/package`);
+- for two records sharing an identity, the later record's identity member, in document order;
+- for a missing member, the object that should hold it;
+- for a problem with a whole shape, list or object, that value;
+- for a parse error, the empty pointer (the whole document).
+
+For a schema error (`EDX-E1000`), validators differ in how deep they point, so the pointer MUST be the object
+holding the fault or a value inside it.
+
+### 14.3 Codes
 
 Codes are a registry. Ranges:
 
-| Range | Layer |
+| Range | Topic |
 | --- | --- |
-| `EDX-E0xxx` | parse |
+| `EDX-E0xxx` | parsing |
 | `EDX-E1xxx` | schema, versions and extensions |
-| `EDX-E2xxx` | references between records, completeness and merging |
+| `EDX-E2xxx` | references, identities, completeness and merging |
 | `EDX-E3xxx` | geometry |
 | `EDX-E4xxx` | relations, rules and constraints |
-| `EDX-W....` | warnings, same ranges |
+| `EDX-Wxxxx` | warnings, in the same ranges |
 
 Initial codes:
 
-| Code | Problem |
-| --- | --- |
-| `EDX-E1001` | unsupported major version |
-| `EDX-E1002` | a required extension is not supported |
-| `EDX-W1003` | the document is of a newer minor version; unknown members ignored |
-| `EDX-E1004` | `extensions_required` names an extension missing from `extensions_used` |
-| `EDX-E2001` | a part names a package that does not exist |
-| `EDX-E2002` | a pad reference names a part that does not exist |
-| `EDX-E2003` | a pad reference names a pad its package does not have |
-| `EDX-E2004` | a pad belongs to more than one net |
-| `EDX-E2005` | a net names a class that is not defined |
-| `EDX-E2006` | two records of one kind share an identity |
-| `EDX-E2007` | merge conflict: one identity, two different records |
-| `EDX-E2008` | the document is not complete (section 4) where it must be |
-| `EDX-E3001` | a shape is not valid in the EDX subset of SVG path data |
-| `EDX-E3002` | an arc whose radii differ, or are zero |
-| `EDX-E3003` | a subpath crosses itself or encloses no area |
-| `EDX-E3004` | a hole is not inside its outer boundary, or holes overlap |
-| `EDX-E3005` | the stack-up does not start with `top` and end with `bottom` |
-| `EDX-E3006` | two pours of different nets overlap at the same priority |
-| `EDX-E4001` | an unknown relation kind |
-| `EDX-E4002` | a relation kind with no rule |
-| `EDX-E4003` | a stated relation id differs from the derived id |
-| `EDX-E4004` | an unknown constraint type |
-| `EDX-E4005` | two authored constraints contradict each other |
-| `EDX-E4006` | an unknown rule key |
+| Code | Layer | Problem |
+| --- | --- | --- |
+| `EDX-E0001` | parse | not valid JSON |
+| `EDX-E0002` | parse | not UTF-8, or begins with a byte-order mark |
+| `EDX-E0003` | parse | an object has two members with the same name |
+| `EDX-E1000` | schema | the document does not match the schema |
+| `EDX-E1001` | version | `edx` is missing or is not a version |
+| `EDX-E1002` | version | unsupported major version |
+| `EDX-E1003` | version | a required extension is not supported |
+| `EDX-E1004` | version | `extensions_required` names an extension missing from `extensions_used` |
+| `EDX-E1005` | semantics | an extension name is used in the document but missing from `extensions_used` |
+| `EDX-W1006` | version | the document is of a newer minor version; unknown members are ignored |
+| `EDX-W1007` | semantics | an extension that is used but not required is not supported; its data is ignored |
+| `EDX-E2001` | semantics | a part names a package that does not exist |
+| `EDX-E2002` | semantics | a reference names a part that does not exist |
+| `EDX-E2003` | semantics | a pad reference names a pad its part's package does not have |
+| `EDX-E2004` | semantics | a pad belongs to more than one net |
+| `EDX-E2005` | semantics | a net names a class that is not defined |
+| `EDX-E2006` | semantics | two records of one kind share an identity |
+| `EDX-E2007` | merge | merge conflict: one identity, two different records or values |
+| `EDX-E2008` | semantics | the document is not complete (section 4) where it must be |
+| `EDX-E2009` | semantics | a stated relation id differs from the derived id |
+| `EDX-E2010` | semantics | a reference names a net that does not exist |
+| `EDX-E2011` | semantics | a reference names a layer that does not exist |
+| `EDX-E2012` | semantics | a reference names a region, block or relation that does not exist |
+| `EDX-E3001` | semantics | an arc whose radii differ, or are zero |
+| `EDX-E3002` | semantics | a subpath crosses itself or encloses no area |
+| `EDX-E3003` | semantics | a hole is not inside its outer boundary, or holes overlap |
+| `EDX-E3004` | semantics | the stack-up does not start with `top` and end with `bottom` |
+| `EDX-E3005` | semantics | two pours of different nets overlap on a layer at the same priority |
+| `EDX-E3006` | semantics | a circular pad whose width and height differ |
+| `EDX-E4001` | semantics | a relation kind with no rule, in a document that must be complete |
+| `EDX-E4002` | semantics | two authored constraints contradict each other |
+
+Block names are those given by `block` constraints (section 9.2) and by `layout.groups.blocks`.
 
 ## 15. Open issues
 

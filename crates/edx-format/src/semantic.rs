@@ -12,6 +12,14 @@ use crate::shape;
 use crate::version::SUPPORTED_EXTENSIONS;
 
 /// `newer_minor`: the document is of a newer minor version, so its hashes cannot be computed here.
+/// Why a document is not complete (section 4), as `EDX-E2008` and `EDX-E4001` errors: none when it is.
+pub(crate) fn incomplete(doc: &Document) -> Vec<Diagnostic> {
+    let mut c = Checker::new(doc);
+    c.ignored = doc.extensions_used.iter().map(String::as_str).filter(|e| !SUPPORTED_EXTENSIONS.contains(e)).collect();
+    c.complete("a layout engine or checker");
+    c.out
+}
+
 pub(crate) fn check(doc: &Document, raw: &Value, newer_minor: bool) -> Vec<Diagnostic> {
     let mut c = Checker::new(doc);
     c.extensions(raw);
@@ -503,12 +511,16 @@ impl<'a> Checker<'a> {
     // ------------------------------------------------------------ completeness (section 4)
 
     fn completeness(&mut self) {
-        let doc = self.doc;
-        if doc.layout.is_none() && doc.report.is_none() {
-            return;
+        if self.doc.layout.is_some() || self.doc.report.is_some() {
+            self.complete("a layout or report");
         }
+    }
+
+    /// What a complete document holds, as needed by `what`.
+    fn complete(&mut self, what: &str) {
+        let doc = self.doc;
         match &doc.design {
-            None => self.push("EDX-E2008", "", "a layout or report needs a design"),
+            None => self.push("EDX-E2008", "", format!("{what} needs a design")),
             Some(d) => {
                 let missing: Vec<&str> = [
                     ("board", d.board.is_some()),
@@ -523,15 +535,15 @@ impl<'a> Checker<'a> {
                     self.push(
                         "EDX-E2008",
                         "/design",
-                        format!("a layout or report needs a complete design; missing: {}", missing.join(", ")),
+                        format!("{what} needs a complete design; missing: {}", missing.join(", ")),
                     );
                 }
             }
         }
         match doc.rules.as_ref() {
-            None => self.push("EDX-E2008", "", "a layout or report needs rules"),
+            None => self.push("EDX-E2008", "", format!("{what} needs rules")),
             Some(rules) => match rules.classes.as_ref() {
-                None => self.push("EDX-E2008", "/rules", "a layout or report needs net classes"),
+                None => self.push("EDX-E2008", "/rules", format!("{what} needs net classes")),
                 Some(classes) => match classes.get("default") {
                     None => self.push("EDX-E2008", "/rules/classes", "net class `default` is required"),
                     Some(c) if c.clearance.is_none() || c.track_width.is_none() || c.via.is_none() => self.push(

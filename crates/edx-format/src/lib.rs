@@ -13,11 +13,14 @@
 //! ```
 
 pub mod canonical;
+pub mod derive;
 mod diagnostic;
+pub mod geometry;
 pub mod ids;
 mod merge;
 pub mod model;
 mod parse;
+pub mod query;
 mod schema;
 mod semantic;
 pub mod shape;
@@ -27,6 +30,7 @@ use serde_json::Value;
 
 pub use canonical::{hashes, to_canonical_string, Hashes};
 pub use diagnostic::{Diagnostic, Severity, CODES};
+pub use geometry::Transform;
 pub use merge::same;
 pub use model::Document;
 pub use schema::SCHEMA;
@@ -97,6 +101,12 @@ pub fn read(bytes: &[u8]) -> Result<(Document, Vec<Diagnostic>), Vec<Diagnostic>
         Some(document) if checked.is_ok() => Ok((document, checked.diagnostics)),
         _ => Err(checked.diagnostics.into_iter().filter(Diagnostic::is_error).collect()),
     }
+}
+
+/// Why a checked document is not complete (section 4): an empty list when it is. A layout engine or
+/// checker refuses an incomplete document.
+pub fn incomplete(document: &Document) -> Vec<Diagnostic> {
+    semantic::incomplete(document)
 }
 
 /// Merges two documents (section 3.2) and checks the result.

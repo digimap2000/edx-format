@@ -50,6 +50,35 @@ let hashes = edx_format::hashes(&doc);                     // sha256 of design, 
 A layout engine records `hashes` in its `layout.inputs` and `report.inputs`; a reader warns (`EDX-W2013`) when they
 no longer match.
 
+## Geometry and lookups
+
+```rust
+use edx_format::{geometry, shape};
+
+let design = doc.design.as_ref().unwrap();
+let package = design.package_of("U1").unwrap();
+let place = doc.transform("U1").unwrap();          // layout placement, else the design's fixed one
+for pad in &package.pads {
+    let copper = place.apply_subpaths(&geometry::pad_shape(pad)?); // the pad's copper on the board
+    let layers = place.layers(pad.layers);                            // top and bottom swap on the bottom
+}
+let d = shape::polygon(&[[0.0, 0.0], [10.0, 0.0], [10.0, 5.0]], &[]); // points to a shape
+let supply = doc.rules.as_ref().unwrap().class("Supply", Some("bottom")); // with default's values
+```
+
+`Transform` maps package coordinates to the board and back (`invert`, `invert_shape`), mirroring the bottom side
+as section 2.3 says. `pad_shape` gives any pad's copper as a shape; `shape::write`, `shape::ring` and
+`shape::polygon` write shapes from points.
+
+## Constraints in force
+
+```rust
+let all = edx_format::derive::constraints(&doc); // derived from relations and rules, authored ones winning
+```
+
+`derive::derived` gives only those derived from `design.relations` and `rules.relations` (section 9.5); its module
+documentation lists which rule key derives which constraint.
+
 ## Licence
 
 MIT OR Apache-2.0, at your option.

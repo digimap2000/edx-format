@@ -110,6 +110,53 @@ impl Tokens<'_> {
     }
 }
 
+/// Writes subpaths as path data in the EDX subset: every segment with its own command letter, numbers
+/// rounded to the nanometre. The result reads back with [`parse`]; [`crate::canonical::canonical_shape`]
+/// puts it in canonical form.
+pub fn write(subpaths: &[Subpath]) -> String {
+    use crate::canonical::number;
+    let mut out = String::new();
+    for sub in subpaths {
+        if !out.is_empty() {
+            out.push(' ');
+        }
+        out.push_str(&format!("M {} {}", number(sub.start[0]), number(sub.start[1])));
+        for segment in &sub.segments {
+            match *segment {
+                Segment::Line { to } => out.push_str(&format!(" L {} {}", number(to[0]), number(to[1]))),
+                Segment::Arc { rx, ry, rotation, large, sweep, to } => out.push_str(&format!(
+                    " A {} {} {} {} {} {} {}",
+                    number(rx),
+                    number(ry),
+                    number(rotation),
+                    u8::from(large),
+                    u8::from(sweep),
+                    number(to[0]),
+                    number(to[1])
+                )),
+            }
+        }
+        out.push_str(" Z");
+    }
+    out
+}
+
+/// A ring of corner points as a subpath of straight lines.
+pub fn ring(points: &[[f64; 2]]) -> Subpath {
+    let start = points.first().copied().unwrap_or_default();
+    let mut segments: Vec<Segment> = points.iter().skip(1).map(|&to| Segment::Line { to }).collect();
+    if points.len() > 1 && points.last() == points.first() {
+        segments.pop();
+    }
+    Subpath { start, segments }
+}
+
+/// A polygon, an outer ring and holes of corner points, as a shape.
+pub fn polygon(outer: &[[f64; 2]], holes: &[Vec<[f64; 2]>]) -> String {
+    let subpaths: Vec<Subpath> = std::iter::once(outer).chain(holes.iter().map(Vec::as_slice)).map(ring).collect();
+    write(&subpaths)
+}
+
 /// Rounds a length to the nearest nanometre, ties away from zero (section 2.1).
 pub fn round_nm(v: f64) -> f64 {
     (v * 1e6).round() / 1e6

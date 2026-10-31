@@ -1,5 +1,5 @@
-//! Lookups a reader needs on a checked document: records by identity, where a part stands, and a
-//! net class's values with their defaults (sections 3.1, 8.2, 10 and 11.1).
+//! Lookups a reader needs on a checked document: records by identity, where a part stands, a net
+//! class's values with their defaults, and a report's gates (sections 3.1, 8.2, 10, 11.1 and 11.2).
 
 use crate::geometry::Transform;
 use crate::model::*;
@@ -109,6 +109,21 @@ impl Rules {
     }
 }
 
+impl Report {
+    /// The gates its lists give (section 11.2): every hard constraint it lists is met, no part is
+    /// unplaced, no net unrouted, no clearance violation. An engine that lists every constraint in
+    /// force, as it must list every broken hard one, states these as its `gates`.
+    pub fn gates_from_lists(&self) -> Gates {
+        Gates {
+            constraints_met: self.constraints.iter().filter(|c| c.hard).all(|c| c.status == Status::Met),
+            all_placed: self.unplaced.is_empty(),
+            all_routed: self.unrouted.is_empty(),
+            clearance_clean: self.clearance.is_empty(),
+            ext: Ext::default(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -169,5 +184,30 @@ mod tests {
         assert!(d.transform("R1").is_none());
         assert_eq!(d.transform("R2"), Some(Transform::new([5.0, 6.0], 90.0, Side::Bottom)));
         assert!(d.transform("R3").is_none());
+    }
+
+    #[test]
+    fn gates_from_a_reports_lists() {
+        let status = |id: &str, status, hard| ConstraintStatus {
+            id: id.into(),
+            status,
+            measured: None,
+            limit: None,
+            measure: None,
+            hard,
+            cost: None,
+            location: None,
+            ext: Default::default(),
+        };
+        let mut r = Report {
+            constraints: vec![status("a", Status::Met, true), status("b", Status::Broken, false)],
+            ..Default::default()
+        };
+        let g = r.gates_from_lists();
+        assert!(g.constraints_met && g.all_placed && g.all_routed && g.clearance_clean);
+        r.constraints.push(status("c", Status::NotYetMeasurable, true));
+        r.unplaced.push("R1".into());
+        let g = r.gates_from_lists();
+        assert!(!g.constraints_met && !g.all_placed && g.all_routed);
     }
 }

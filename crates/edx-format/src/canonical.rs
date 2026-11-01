@@ -1,7 +1,7 @@
 //! Canonical form and section hashes (specification, section 13).
 
-use std::cmp::Ordering;
 use std::fmt::Write as _;
+use std::sync::OnceLock;
 
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
@@ -50,21 +50,34 @@ pub fn to_canonical_string(doc: &Document) -> String {
     write(&serde_json::to_value(canonicalize(doc)).expect("a document always serialises"))
 }
 
+/// Writes a document as it stands, its members in the order the schema lists them and numbers in
+/// plain decimal: what `to_string` writes, the same whatever order serde_json keeps maps in.
+pub(crate) fn write_document(doc: &Document) -> String {
+    let value = serde_json::to_value(doc).expect("a document always serialises");
+    let mut out = String::new();
+    write_value(&value, Some(Schema::root()), 0, Mode::Plain, &mut out);
+    out.push('\n');
+    out
+}
+
 /// The hashes of a document's `design`, `rules` and `constraints`, for those it has.
 pub fn hashes(doc: &Document) -> Hashes {
     let doc = canonicalize(doc);
     Hashes {
-        design: doc.design.as_ref().map(hash),
-        rules: doc.rules.as_ref().map(hash),
-        constraints: doc.constraints.as_ref().map(hash),
+        design: doc.design.as_ref().map(|s| hash("design", s)),
+        rules: doc.rules.as_ref().map(|s| hash("rules", s)),
+        constraints: doc.constraints.as_ref().map(|s| hash("constraints", s)),
     }
 }
 
 /// `sha256:` and the digest of a section written in canonical form on its own.
-fn hash<T: serde::Serialize>(section: &T) -> String {
+fn hash<T: serde::Serialize>(name: &str, section: &T) -> String {
     let value = serde_json::to_value(section).expect("a section always serialises");
+    let mut text = String::new();
+    write_value(&value, Schema::root().get("properties").and_then(|p| p.get(name)), 0, Mode::Canonical, &mut text);
+    text.push('\n');
     let mut s = String::from("sha256:");
-    for byte in Sha256::digest(write(&value).as_bytes()) {
+    for byte in Sha256::digest(text.as_bytes()) {
         let _ = write!(s, "{byte:02x}");
     }
     s
@@ -284,12 +297,9 @@ fn design(d: &mut Design) {
     d.relations.sort_by_cached_key(relation_id);
 }
 
-fn rules(r: &mut Rules) {
-    let defs = &crate::schema::value()["$defs"];
-    for (kind, values) in r.relations.iter_mut() {
-        let order = &defs["relation_rules"]["properties"][kind.as_str()];
-        *values = ordered(std::mem::take(values), order, defs);
-    }
+fn rules(_: &mut Rules) {
+    // Classes and relation kinds are keyed by name, and every member takes its place as it is
+    // written (see `write`): nothing to sort.
 }
 
 fn constraint(c: &mut Constraint) {
@@ -315,11 +325,6 @@ fn constraint(c: &mut Constraint) {
             *angles = list.into_iter().map(Value::from).collect();
         }
         _ => {}
-    }
-    if let Some(Value::Object(v)) = &mut c.value {
-        let defs = &crate::schema::value()["$defs"];
-        let order = &defs[format!("constraint_{}", c.kind).as_str()]["properties"]["value"];
-        *v = ordered(std::mem::take(v), order, defs);
     }
 }
 
@@ -369,41 +374,275 @@ fn report(r: &mut Report) {
     }
 }
 
-/// Orders an object's members as a schema lists its properties, unknown members last by name.
-fn ordered(map: Map<String, Value>, schema: &Value, defs: &Value) -> Map<String, Value> {
-    let schema = match schema.get("$ref").and_then(Value::as_str).and_then(|r| r.strip_prefix("#/$defs/")) {
-        Some(name) => &defs[name],
-        None => schema,
-    };
-    let known: Vec<&String> =
-        schema.get("properties").and_then(Value::as_object).map(|p| p.keys().collect()).unwrap_or_default();
-    let rank = |k: &str| known.iter().position(|n| *n == k).unwrap_or(usize::MAX);
-    let mut entries: Vec<(String, Value)> = map.into_iter().collect();
-    entries.sort_by(|(a, _), (b, _)| match rank(a).cmp(&rank(b)) {
-        Ordering::Equal => a.cmp(b),
-        other => other,
-    });
-    entries.into_iter().collect()
-}
-
 // ---------------------------------------------------------------- writing
 
-/// Writes JSON in canonical form: two-space indent, LF, a final newline, canonical numbers, and the
+/// Writes an EDX document's JSON in canonical form: two-space indent, LF, a final newline,
+/// canonical numbers, members in the order the schema lists them (`extensions`, then `extras`,
+/// last; members of objects keyed by name, and members the schema does not know, by name), and the
 /// members of `extensions` and `extras` values sorted by name. Numbers inside those are not rounded.
+///
+/// The order comes from the schema as published, read with its members in order, so it does not
+/// depend on whether serde_json keeps maps in insertion order (its `preserve_order` feature).
 pub fn write(value: &Value) -> String {
     let mut out = String::new();
-    write_value(value, 0, Mode::Canonical, &mut out);
+    write_value(value, Some(Schema::root()), 0, Mode::Canonical, &mut out);
     out.push('\n');
     out
 }
 
 /// Writes JSON as given, in the same layout: two-space indent, LF, a final newline, numbers in
-/// plain decimal (never exponent notation, section 2.1), members in their order.
+/// plain decimal (never exponent notation, section 2.1), members in the order the map holds them
+/// (as they were read only with serde_json's `preserve_order`; see this crate's feature of that name).
 pub fn write_plain(value: &Value) -> String {
     let mut out = String::new();
-    write_value(value, 0, Mode::Plain, &mut out);
+    write_value(value, None, 0, Mode::Plain, &mut out);
     out.push('\n');
     out
+}
+
+// ---------------------------------------------------------------- the schema, in order
+
+/// A JSON value with its objects' members in the order written: the schema as published, read
+/// without depending on how serde_json orders a map.
+enum Ordered {
+    Leaf(Value),
+    Array(Vec<Ordered>),
+    Object(Vec<(String, Ordered)>),
+}
+
+impl<'de> serde::Deserialize<'de> for Ordered {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct V;
+        impl<'de> serde::de::Visitor<'de> for V {
+            type Value = Ordered;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("JSON")
+            }
+            fn visit_bool<E>(self, v: bool) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(v.into()))
+            }
+            fn visit_i64<E>(self, v: i64) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(v.into()))
+            }
+            fn visit_u64<E>(self, v: u64) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(v.into()))
+            }
+            fn visit_f64<E>(self, v: f64) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(v.into()))
+            }
+            fn visit_str<E>(self, v: &str) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(v.into()))
+            }
+            fn visit_unit<E>(self) -> Result<Ordered, E> {
+                Ok(Ordered::Leaf(Value::Null))
+            }
+            fn visit_seq<A: serde::de::SeqAccess<'de>>(self, mut a: A) -> Result<Ordered, A::Error> {
+                let mut out = Vec::new();
+                while let Some(v) = a.next_element()? {
+                    out.push(v);
+                }
+                Ok(Ordered::Array(out))
+            }
+            fn visit_map<A: serde::de::MapAccess<'de>>(self, mut a: A) -> Result<Ordered, A::Error> {
+                let mut out = Vec::new();
+                while let Some((k, v)) = a.next_entry()? {
+                    out.push((k, v));
+                }
+                Ok(Ordered::Object(out))
+            }
+        }
+        d.deserialize_any(V)
+    }
+}
+
+impl Ordered {
+    fn get(&self, key: &str) -> Option<&Ordered> {
+        match self {
+            Ordered::Object(m) => m.iter().find(|(k, _)| k == key).map(|(_, v)| v),
+            _ => None,
+        }
+    }
+
+    fn members(&self) -> &[(String, Ordered)] {
+        match self {
+            Ordered::Object(m) => m,
+            _ => &[],
+        }
+    }
+
+    fn items(&self) -> &[Ordered] {
+        match self {
+            Ordered::Array(a) => a,
+            _ => &[],
+        }
+    }
+
+    fn leaf(&self) -> Option<&Value> {
+        match self {
+            Ordered::Leaf(v) => Some(v),
+            _ => None,
+        }
+    }
+}
+
+/// A value the schema is matched against: an object's members are looked at without copying them.
+#[derive(Clone, Copy)]
+enum Probe<'v> {
+    Object(&'v Map<String, Value>),
+    Value(&'v Value),
+}
+
+impl<'v> Probe<'v> {
+    fn get(self, k: &str) -> Option<&'v Value> {
+        match self {
+            Probe::Object(m) => m.get(k),
+            Probe::Value(v) => v.get(k),
+        }
+    }
+
+    fn value(self) -> Option<&'v Value> {
+        match self {
+            Probe::Object(_) => None,
+            Probe::Value(v) => Some(v),
+        }
+    }
+}
+
+/// Walks the schema beside a value, to find each object's member order and each member's schema.
+struct Schema;
+
+impl Schema {
+    fn root() -> &'static Ordered {
+        static S: OnceLock<Ordered> = OnceLock::new();
+        S.get_or_init(|| serde_json::from_str(crate::schema::SCHEMA).expect("the embedded schema is valid JSON"))
+    }
+
+    /// A node with its `$ref`s followed.
+    fn resolve(mut n: &Ordered) -> &Ordered {
+        while let Some(r) = n.get("$ref").and_then(Ordered::leaf).and_then(Value::as_str) {
+            match r.strip_prefix("#/$defs/").and_then(|name| Self::root().get("$defs")?.get(name)) {
+                Some(next) => n = next,
+                None => break,
+            }
+        }
+        n
+    }
+
+    /// The nodes that describe `v` under `n`: `n` itself, every `allOf`, `then` and `else`, and of
+    /// a `oneOf` or `anyOf` the branch `v` takes (picked by the members whose value the branch
+    /// fixes with `const`, as a constraint's `type` or a placement's `kind`).
+    fn nodes<'a>(n: &'a Ordered, v: Probe, out: &mut Vec<&'a Ordered>) {
+        let n = Self::resolve(n);
+        out.push(n);
+        for b in n.get("allOf").map(Ordered::items).unwrap_or_default() {
+            Self::nodes(b, v, out);
+        }
+        for k in ["then", "else"] {
+            if let Some(b) = n.get(k) {
+                Self::nodes(b, v, out);
+            }
+        }
+        for k in ["oneOf", "anyOf"] {
+            let branches = n.get(k).map(Ordered::items).unwrap_or_default();
+            let fits: Vec<&Ordered> = branches.iter().filter(|b| Self::fits(b, v)).collect();
+            let pick = fits.iter().find(|b| Self::fixes(b)).or(fits.first());
+            if let Some(b) = pick {
+                Self::nodes(b, v, out);
+            }
+        }
+    }
+
+    /// Whether a branch can describe `v`: its type, and every member it fixes with `const`.
+    fn fits(b: &Ordered, v: Probe) -> bool {
+        let b = Self::resolve(b);
+        if let Some(c) = b.get("const").and_then(Ordered::leaf) {
+            return v.value() == Some(c);
+        }
+        let kind = b.get("type").and_then(Ordered::leaf).and_then(Value::as_str);
+        let ok = match (kind, v) {
+            (Some("object"), Probe::Object(_)) | (None, _) => true,
+            (_, Probe::Object(_)) => false,
+            (Some("object"), Probe::Value(v)) => v.is_object(),
+            (Some("array"), Probe::Value(v)) => v.is_array(),
+            (Some("string"), Probe::Value(v)) => v.is_string(),
+            (Some("number"), Probe::Value(v)) => v.is_number(),
+            (Some("integer"), Probe::Value(v)) => v.is_i64() || v.is_u64(),
+            (Some("boolean"), Probe::Value(v)) => v.is_boolean(),
+            (Some("null"), Probe::Value(v)) => v.is_null(),
+            _ => true,
+        };
+        ok && b.get("properties").map(Ordered::members).unwrap_or_default().iter().all(|(k, p)| {
+            match Self::resolve(p).get("const").and_then(Ordered::leaf) {
+                Some(c) => v.get(k) == Some(c),
+                None => true,
+            }
+        })
+    }
+
+    /// Whether a branch fixes a member's value: a branch for one kind, not a catch-all.
+    fn fixes(b: &Ordered) -> bool {
+        let b = Self::resolve(b);
+        b.get("properties")
+            .map(Ordered::members)
+            .unwrap_or_default()
+            .iter()
+            .any(|(_, p)| Self::resolve(p).get("const").is_some())
+    }
+}
+
+/// An object's members in the order to write them (see `write`), each with its schema if known.
+fn arrange<'a, 'v>(
+    map: &'v Map<String, Value>,
+    schema: Option<&'a Ordered>,
+    mode: Mode,
+) -> Vec<(&'v String, &'v Value, Option<&'a Ordered>)> {
+    let mut nodes = Vec::new();
+    if let Some(s) = schema {
+        Schema::nodes(s, Probe::Object(map), &mut nodes);
+    }
+    let mut known: Vec<&str> = Vec::new();
+    for n in &nodes {
+        for (k, _) in n.get("properties").map(Ordered::members).unwrap_or_default() {
+            if !known.contains(&k.as_str()) {
+                known.push(k);
+            }
+        }
+    }
+    let child = |k: &str| -> Option<&'a Ordered> {
+        nodes
+            .iter()
+            .find_map(|n| n.get("properties").and_then(|p| p.get(k)))
+            .or_else(|| {
+                nodes.iter().find_map(|n| n.get("patternProperties").and_then(|p| p.members().first().map(|(_, s)| s)))
+            })
+            .or_else(|| {
+                nodes.iter().find_map(|n| n.get("additionalProperties").filter(|a| matches!(a, Ordered::Object(_))))
+            })
+    };
+    let rank = |k: &str| match k {
+        "extensions" => (2, 0),
+        "extras" => (3, 0),
+        _ => known.iter().position(|n| *n == k).map_or((1, 0), |i| (0, i)),
+    };
+    let mut entries: Vec<(&String, &Value, Option<&Ordered>)> = map.iter().map(|(k, v)| (k, v, child(k))).collect();
+    match mode {
+        Mode::Free => entries.sort_by(|a, b| a.0.cmp(b.0)),
+        // Unknown members by name in canonical form; as the map holds them otherwise.
+        Mode::Canonical => entries.sort_by(|a, b| rank(a.0).cmp(&rank(b.0)).then_with(|| a.0.cmp(b.0))),
+        Mode::Plain if schema.is_some() => entries.sort_by_key(|e| rank(e.0)),
+        Mode::Plain => {}
+    }
+    entries
+}
+
+/// The schema of an array's `i`th item.
+fn item<'a>(schema: Option<&'a Ordered>, array: &Value, i: usize) -> Option<&'a Ordered> {
+    let mut nodes = Vec::new();
+    Schema::nodes(schema?, Probe::Value(array), &mut nodes);
+    nodes
+        .iter()
+        .find_map(|n| n.get("prefixItems").and_then(|p| p.items().get(i)))
+        .or_else(|| nodes.iter().find_map(|n| n.get("items").filter(|s| matches!(s, Ordered::Object(_)))))
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -416,7 +655,7 @@ enum Mode {
     Plain,
 }
 
-fn write_value(v: &Value, depth: usize, mode: Mode, out: &mut String) {
+fn write_value(v: &Value, schema: Option<&Ordered>, depth: usize, mode: Mode, out: &mut String) {
     let indent = |out: &mut String, d: usize| {
         out.push('\n');
         out.extend(std::iter::repeat_n("  ", d));
@@ -439,19 +678,16 @@ fn write_value(v: &Value, depth: usize, mode: Mode, out: &mut String) {
                     out.push(',');
                 }
                 indent(out, depth + 1);
-                write_value(item, depth + 1, mode, out);
+                write_value(item, self::item(schema, v, i), depth + 1, mode, out);
             }
             indent(out, depth);
             out.push(']');
         }
         Value::Object(map) if map.is_empty() => out.push_str("{}"),
         Value::Object(map) => {
-            let mut entries: Vec<(&String, &Value)> = map.iter().collect();
-            if mode == Mode::Free {
-                entries.sort_by_key(|(k, _)| *k);
-            }
+            let entries = arrange(map, if mode == Mode::Free { None } else { schema }, mode);
             out.push('{');
-            for (i, (k, item)) in entries.into_iter().enumerate() {
+            for (i, (k, item, inner_schema)) in entries.into_iter().enumerate() {
                 if i > 0 {
                     out.push(',');
                 }
@@ -462,7 +698,7 @@ fn write_value(v: &Value, depth: usize, mode: Mode, out: &mut String) {
                     Mode::Canonical if k == "extensions" || k == "extras" => Mode::Free,
                     m => m,
                 };
-                write_value(item, depth + 1, inner, out);
+                write_value(item, if inner == Mode::Free { None } else { inner_schema }, depth + 1, inner, out);
             }
             indent(out, depth);
             out.push('}');
@@ -508,8 +744,8 @@ mod tests {
 
     #[test]
     fn plain_writing_never_uses_exponents() {
-        let v = serde_json::json!({ "b": 0.00000005, "a": 1e20 });
-        assert_eq!(write_plain(&v), "{\n  \"b\": 0.00000005,\n  \"a\": 100000000000000000000\n}\n");
+        let v = serde_json::json!({ "a": 0.00000005, "b": 1e20 });
+        assert_eq!(write_plain(&v), "{\n  \"a\": 0.00000005,\n  \"b\": 100000000000000000000\n}\n");
     }
 
     #[test]

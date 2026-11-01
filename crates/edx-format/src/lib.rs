@@ -143,7 +143,7 @@ pub fn merge(first: &Value, second: &Value) -> Checked {
 
 /// Writes a document as JSON, indented by two spaces, ending with a newline.
 pub fn to_string(document: &Document) -> String {
-    to_string_value(&serde_json::to_value(document).expect("a document always serialises"))
+    canonical::write_document(document)
 }
 
 /// Writes JSON as an EDX tool would: indented by two spaces, numbers in plain decimal, ending with a newline.

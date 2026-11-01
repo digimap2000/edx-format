@@ -33,9 +33,14 @@ warnings, or the errors.
 Build or edit a `Document` (the `model` module mirrors the schema) and write it:
 
 ```rust
-let text = edx_format::to_string(&doc);            // readable, as the document was arranged
+let text = edx_format::to_string(&doc);            // readable, members in schema order
 let text = edx_format::to_canonical_string(&doc);  // canonical form: one spelling per meaning
 ```
+
+Both take their member order from the schema, so neither depends on how `serde_json` orders a map. To write JSON
+values back in the order they were read (`to_string_value`), turn on this crate's `preserve_order` feature. It is off
+by default, because Cargo turns a feature on for a whole build: it would change the order of every map your own code
+reads with `serde_json` too.
 
 Every object keeps its `extensions` and `extras` in its `ext` field, so reading and writing a document loses nothing
 this version of EDX defines.

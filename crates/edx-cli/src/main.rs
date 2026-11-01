@@ -15,6 +15,8 @@ Usage:
                                            merge two documents and check the result
   edx fmt [-o OUT] FILE                    write a document in canonical form
   edx hash [--format text|json] FILE       print the hashes of its design, rules and constraints
+  edx constraints [--format text|json] FILE
+                                           list the constraints in force, derived and authored
   edx schema                               print the JSON Schema this tool checks against
   edx explain CODE                         describe a diagnostic code, such as EDX-E2001
   edx codes                                list every diagnostic code
@@ -75,6 +77,7 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
         "merge" if files.len() == 2 => merge(&files[0], &files[1], format, output.as_deref()),
         "fmt" if files.len() == 1 => fmt(&files[0], output.as_deref()),
         "hash" if files.len() == 1 => hash(&files[0], format),
+        "constraints" if files.len() == 1 => constraints(&files[0], format),
         "schema" => {
             print!("{}", edx_format::SCHEMA);
             Ok(ExitCode::SUCCESS)
@@ -232,6 +235,24 @@ fn hash(file: &str, format: Format) -> Result<ExitCode, String> {
                 if let Some(hash) = hash {
                     println!("{section:<12} {hash}");
                 }
+            }
+        }
+    }
+    Ok(ExitCode::SUCCESS)
+}
+
+fn constraints(file: &str, format: Format) -> Result<ExitCode, String> {
+    let document = match read_known(file)? {
+        Ok(d) => d,
+        Err(checked) => return Ok(refuse(file, &checked)),
+    };
+    let constraints = edx_format::derive::constraints(&document);
+    match format {
+        Format::Json => println!("{}", serde_json::to_string(&constraints).map_err(|e| e.to_string())?),
+        Format::Text => {
+            for c in &constraints {
+                let origin = if c.origin == edx_format::model::Origin::Derived { "derived" } else { "authored" };
+                println!("{}  ({origin})", c.id);
             }
         }
     }

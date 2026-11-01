@@ -52,6 +52,11 @@ export function loads(source: Source): Document;
 export function dumps(document: Source, options?: { canonical?: boolean }): string;
 /** The hashes of a document's design, rules and constraints. Throws EdxError if it has errors. */
 export function hashes(source: Source): Hashes;
+/**
+ * The constraints in force (section 9.5): those derived from the relations and rules, with the document's own
+ * constraints in place of any with the same id, ordered by id. Throws EdxError if it has errors.
+ */
+export function constraints(source: Source): Record<string, unknown>[];
 /** Merges two documents by record identity and checks the result. Conflicts are EDX-E2007. */
 export function merge(first: Source, second: Source): CheckResult;
 /** One diagnostic as a line of text. */

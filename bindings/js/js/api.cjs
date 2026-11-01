@@ -64,6 +64,7 @@ module.exports = function api(native) {
       return options.canonical ? canonicalOf(document).canonical : native.write(text(document));
     },
     hashes: (source) => canonicalOf(source).hashes,
+    constraints: (source) => canonicalOf(source).constraints,
     merge: (first, second) => result(native.merge(text(first), text(second))),
   };
 };

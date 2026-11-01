@@ -1,0 +1,50 @@
+[
+  {
+    "id": "quiet:X1",
+    "type": "quiet",
+    "operands": [
+      {
+        "part": "X1"
+      },
+      {
+        "part": "C1"
+      },
+      {
+        "part": "C2"
+      },
+      {
+        "net": "XIN"
+      },
+      {
+        "net": "XOUT"
+      }
+    ],
+    "value": 1,
+    "origin": "derived",
+    "source": {
+      "relation": "clocks:X1.1:U1.2",
+      "rule": "clocks.quiet_margin"
+    }
+  },
+  {
+    "id": "quiet:Y1",
+    "type": "quiet",
+    "operands": [
+      {
+        "part": "Y1"
+      },
+      {
+        "net": "XIN32"
+      },
+      {
+        "net": "XOUT32"
+      }
+    ],
+    "value": 1,
+    "origin": "derived",
+    "source": {
+      "relation": "clocks:Y1.1:U1.6",
+      "rule": "clocks.quiet_margin"
+    }
+  }
+]

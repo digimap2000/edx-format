@@ -1,0 +1,499 @@
+{
+  "edx": "1.0",
+  "design": {
+    "board": {
+      "outline": [
+        "M 1 0 A 1 1 0 0 0 0 1 V 19 A 1 1 0 0 0 1 20 H 29 A 1 1 0 0 0 30 19 V 1 A 1 1 0 0 0 29 0 Z"
+      ],
+      "stackup": [
+        {
+          "name": "top",
+          "role": "signal",
+          "routable": true
+        },
+        {
+          "name": "bottom",
+          "role": "signal",
+          "routable": true
+        }
+      ]
+    },
+    "packages": [
+      {
+        "id": "C0402",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              -0.48,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              0.56,
+              0.62
+            ],
+            "corner_radius": 0.07,
+            "position": [
+              0.48,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -0.93 -0.47 V 0.47 H 0.93 V -0.47 Z"
+          ]
+        }
+      },
+      {
+        "id": "C0805",
+        "class": "passive",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              1,
+              1.45
+            ],
+            "corner_radius": 0.25,
+            "position": [
+              -0.95,
+              0
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "roundrect",
+            "size": [
+              1,
+              1.45
+            ],
+            "corner_radius": 0.25,
+            "position": [
+              0.95,
+              0
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.7 -0.98 V 0.98 H 1.7 V -0.98 Z"
+          ]
+        }
+      },
+      {
+        "id": "HDR-1x2-2.54",
+        "class": "connector",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "th",
+            "shape": "rect",
+            "size": [
+              1.7,
+              1.7
+            ],
+            "position": [
+              0,
+              0
+            ],
+            "layers": "through",
+            "drill": {
+              "diameter": 1
+            }
+          },
+          {
+            "number": "2",
+            "kind": "th",
+            "shape": "circle",
+            "size": [
+              1.7,
+              1.7
+            ],
+            "position": [
+              0,
+              2.54
+            ],
+            "layers": "through",
+            "drill": {
+              "diameter": 1
+            }
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -1.27 -1.27 V 3.81 H 1.27 V -1.27 Z"
+          ]
+        }
+      },
+      {
+        "id": "SOIC-8",
+        "class": "ic",
+        "pads": [
+          {
+            "number": "1",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "2",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "3",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "4",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              -2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "5",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              1.905
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "6",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "7",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -0.635
+            ],
+            "layers": "top"
+          },
+          {
+            "number": "8",
+            "kind": "smd",
+            "shape": "rect",
+            "size": [
+              1.55,
+              0.6
+            ],
+            "position": [
+              2.7,
+              -1.905
+            ],
+            "layers": "top"
+          }
+        ],
+        "courtyard": {
+          "top": [
+            "M -3.75 -2.7 V 2.7 H 3.75 V -2.7 Z"
+          ]
+        }
+      }
+    ],
+    "parts": [
+      {
+        "ref": "X1",
+        "package": "C0805",
+        "value": "12 MHz crystal",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "Y1",
+        "package": "C0805",
+        "value": "32.768 kHz crystal",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "C1",
+        "package": "C0402",
+        "value": "18pF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "C2",
+        "package": "C0402",
+        "value": "18pF",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      },
+      {
+        "ref": "U1",
+        "package": "SOIC-8",
+        "value": "MCU",
+        "side": "top",
+        "placement": {
+          "kind": "free"
+        }
+      }
+    ],
+    "nets": [
+      {
+        "name": "XIN",
+        "pads": [
+          {
+            "part": "X1",
+            "pad": "1"
+          },
+          {
+            "part": "C1",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "2"
+          }
+        ]
+      },
+      {
+        "name": "XOUT",
+        "pads": [
+          {
+            "part": "X1",
+            "pad": "2"
+          },
+          {
+            "part": "C2",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "3"
+          }
+        ]
+      },
+      {
+        "name": "XIN32",
+        "pads": [
+          {
+            "part": "Y1",
+            "pad": "1"
+          },
+          {
+            "part": "U1",
+            "pad": "6"
+          }
+        ]
+      },
+      {
+        "name": "XOUT32",
+        "pads": [
+          {
+            "part": "Y1",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "7"
+          }
+        ]
+      },
+      {
+        "name": "GND",
+        "pads": [
+          {
+            "part": "C1",
+            "pad": "2"
+          },
+          {
+            "part": "C2",
+            "pad": "2"
+          },
+          {
+            "part": "U1",
+            "pad": "4"
+          }
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "X1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "2"
+        }
+      },
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "X1",
+          "pad": "2"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "3"
+        }
+      },
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "Y1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "6"
+        }
+      },
+      {
+        "kind": "clocks",
+        "subject": {
+          "part": "Y1",
+          "pad": "2"
+        },
+        "object": {
+          "part": "U1",
+          "pad": "7"
+        }
+      },
+      {
+        "kind": "loads",
+        "subject": {
+          "part": "C1",
+          "pad": "1"
+        },
+        "object": {
+          "part": "X1",
+          "pad": "1"
+        }
+      },
+      {
+        "kind": "loads",
+        "subject": {
+          "part": "C2",
+          "pad": "1"
+        },
+        "object": {
+          "part": "X1",
+          "pad": "2"
+        }
+      }
+    ]
+  },
+  "rules": {
+    "board": {
+      "copper_to_edge": 0.3,
+      "hole_to_hole": 0.25
+    },
+    "classes": {
+      "Supply": {
+        "track_width": {
+          "min": 0.3,
+          "preferred": 0.5
+        }
+      },
+      "default": {
+        "clearance": 0.15,
+        "track_width": {
+          "min": 0.15,
+          "preferred": 0.2
+        },
+        "via": {
+          "pad": 0.6,
+          "drill": 0.3
+        }
+      }
+    },
+    "relations": {
+      "clocks": {
+        "matched_tolerance": 0.5
+      },
+      "loads": {}
+    }
+  }
+}

@@ -44,6 +44,13 @@ def test_canonical_form_and_hashes_match_the_suite():
     assert edx_format.hashes(edx_format.loads(data)) == case["expect"]["hashes"]
 
 
+def test_constraints_match_the_suite():
+    for case in json.loads((SUITE / "cases.json").read_text())["cases"]:
+        if "constraints" in case["expect"]:
+            expected = json.loads((SUITE / case["expect"]["constraints"]).read_text())
+            assert edx_format.constraints((SUITE / case["input"]).read_bytes()) == expected, case["name"]
+
+
 def test_merge_in_either_order():
     a = edx_format.load(SUITE / "valid/design-only.edx.json")
     b = edx_format.load(SUITE / "examples/rules-only.edx.json")

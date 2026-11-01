@@ -1,0 +1,38 @@
+[
+  {
+    "id": "matched:XIN32:XOUT32",
+    "type": "matched",
+    "operands": [
+      {
+        "net": "XIN32"
+      },
+      {
+        "net": "XOUT32"
+      }
+    ],
+    "value": 0.5,
+    "origin": "derived",
+    "source": {
+      "relation": "clocks:Y1.1:U1.6",
+      "rule": "clocks.matched_tolerance"
+    }
+  },
+  {
+    "id": "matched:XIN:XOUT",
+    "type": "matched",
+    "operands": [
+      {
+        "net": "XIN"
+      },
+      {
+        "net": "XOUT"
+      }
+    ],
+    "value": 0.5,
+    "origin": "derived",
+    "source": {
+      "relation": "clocks:X1.1:U1.2",
+      "rule": "clocks.matched_tolerance"
+    }
+  }
+]

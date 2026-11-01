@@ -56,6 +56,18 @@ fn run(case: &Value) -> Vec<String> {
             }
         }
     }
+    if let Some(expected) = case["expect"]["constraints"].as_str() {
+        let expected: Value = serde_json::from_slice(&std::fs::read(suite().join(expected)).unwrap()).unwrap();
+        match outcomes[0].document.as_ref() {
+            Some(document) => {
+                let got = serde_json::to_value(edx_format::derive::constraints(document)).unwrap();
+                if !edx_format::same(&got, &expected) {
+                    problems.push(format!("the constraints in force differ from the expected file: got {got}"));
+                }
+            }
+            None => problems.push("no document to derive constraints from".to_owned()),
+        }
+    }
     for checked in outcomes {
         let errors: BTreeSet<(String, String)> =
             checked.errors().map(|d| (d.code.to_owned(), d.pointer.clone())).collect();

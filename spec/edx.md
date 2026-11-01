@@ -417,6 +417,8 @@ registry entry:
 
 An unknown key is an error. Every key is OPTIONAL: an absent key derives no constraint.
 
+`near.measure` defaults to `centre`. Section 9.5 gives the constraint each key derives.
+
 ## 9. Constraints (`constraints`)
 
 ```json
@@ -455,7 +457,7 @@ The type list is a registry. Registered types:
 | `max_length` | net or path | length | routed length |
 | `matched` | two or more nets | tolerance | routed lengths equal within the tolerance |
 | `square_on_pin` | part, pad | tolerance, OPTIONAL | the part's pad on the pin's line, facing it. Soft by default, costed by sideways offset. Hard when a value is given, the offset held within it. |
-| `via_policy` | relations | `in_link \| beside_pad \| none` | `in_link`: room for a via between the pin's tip and the pad, the via there. `beside_pad`: beside the pad, pointing away from the link. `none`: the link has no via. |
+| `via_policy` | relations, then pads (OPTIONAL) | `in_link \| beside_pad \| none` | With relations alone, each relation's link: `in_link`: room for a via between the pin's tip and the pad, the via there. `beside_pad`: beside the pad, pointing away from the link. `none`: the link has no via. With pads after the relations, each of those pads instead: `in_link`: it joins the relation's link and shares its via. `beside_pad`: its own via beside it, pointing away from the link. `none`: no via of its own. |
 | `same_layer` | nets or paths | none | all copper on one layer |
 | `no_vias` | nets or paths | none | no vias |
 | `quiet` | parts and nets | margin | other nets' copper kept the margin from the group, on every layer |
@@ -489,9 +491,28 @@ A constraint is `met`, `broken`, or `not_yet_measurable` (for example, a `matche
 ### 9.5 Derivation and precedence
 
 - Constraints MAY be derived from relations and rules, by the design side or by a layout engine.
-- A derived constraint's id is its `type`, then each operand in order, joined by `:`. A pad is written in display
+- Except as this section says below, a derived constraint's id is its `type`, then each operand in order, joined by `:`. A pad is written in display
   form, a path as its pads joined by `-`, a relation group as its ids joined by `+`, and any other operand as its
   name. Each name is escaped as in section 2.6.
+- Each relation rule key derives the following, for each relation of its kind unless it says otherwise. A key that
+  derives no operand list of the length its type needs (for example, `matched` with fewer than two nets) derives
+  nothing.
+
+  | Rule key | Type | Operands |
+  | --- | --- | --- |
+  | `max_track` (`decouples`, `backs`, `filters`, `feeds`, `loads`) | `max_track` | subject, object |
+  | `decouples.square_on_pin` (when true) | `square_on_pin` | subject's part, object |
+  | `decouples.via` | `via_policy` | the relation |
+  | `decouples.adjacent_pins_via` | `via_policy` | the relation, then the object part's other pads on the object's net that are not themselves the object of a `decouples` relation, in pad reference order (as section 13.1 sorts a net's pads). None, no constraint. |
+  | `clocks.same_layer` (when true) | `same_layer` | path from subject to object |
+  | `clocks.no_vias` (when true) | `no_vias` | path from subject to object |
+  | `clocks.matched_tolerance` | `matched` | once for each crystal and IC (the `clocks` relations whose subjects are on one part and objects on one part): the nets of their subjects, by name |
+  | `clocks.quiet_margin` | `quiet` | once for each crystal (the `clocks` relations whose subjects are on one part): that part; then, by reference, the subjects' parts of the `loads` relations whose object is on it; then the nets of the `clocks` subjects, by name |
+  | `near.max_distance` | `max_distance` | subject, object, with `measure` from `near.measure` |
+
+- A constraint derived from several relations names the first of them, in id order, as its `source.relation`.
+- A `quiet` constraint derived from `clocks.quiet_margin` is named after its crystal alone, `quiet:` then the part's
+  reference escaped as in section 2.6 (`quiet:X1`), rather than after all its operands.
 - An authored constraint wins over a derived constraint with the same id.
 - Two authored constraints that contradict each other are an error. They contradict when no layout could meet both:
   for example, two `fixed` constraints on one part with different positions, or `side` constraints naming different

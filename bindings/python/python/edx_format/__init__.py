@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from . import _native
 
@@ -28,6 +28,7 @@ __all__ = [
     "EdxError",
     "check",
     "check_file",
+    "constraints",
     "dumps",
     "hashes",
     "load",
@@ -142,12 +143,12 @@ def load(path: Union[str, "os.PathLike[str]"]) -> Document:
         return loads(f.read())
 
 
-def _canonical(document: Union[Source, Document]) -> Tuple[str, Dict[str, str]]:
+def _canonical(document: Union[Source, Document]) -> Dict[str, Any]:
     data = json.loads(_native.canonical(_bytes(document)))
     if not data["ok"]:
         diagnostics = [Diagnostic(**d) for d in data["diagnostics"]]
         raise EdxError(diagnostics, data.get("reason"))
-    return data["canonical"], data["hashes"]
+    return data
 
 
 def dumps(document: Union[Document, Source], canonical: bool = False) -> str:
@@ -157,13 +158,19 @@ def dumps(document: Union[Document, Source], canonical: bool = False) -> str:
     one spelling per meaning; EdxError is raised if it has errors. The document may then also be JSON text or bytes.
     """
     if canonical:
-        return _canonical(document)[0]
+        return _canonical(document)["canonical"]
     return _native.write(json.dumps(document, ensure_ascii=False))
 
 
 def hashes(document: Union[Source, Document]) -> Dict[str, str]:
     """The ``sha256:`` hashes of a document's design, rules and constraints, for those it has (section 13.2)."""
-    return _canonical(document)[1]
+    return _canonical(document)["hashes"]
+
+
+def constraints(document: Union[Source, Document]) -> List[Dict[str, Any]]:
+    """The constraints in force (section 9.5): those derived from the relations and rules, with the document's own
+    constraints in place of any with the same id, ordered by id. EdxError is raised if the document has errors."""
+    return _canonical(document)["constraints"]
 
 
 def merge(first: Union[Source, Document], second: Union[Source, Document]) -> CheckResult:

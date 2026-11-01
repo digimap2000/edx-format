@@ -22,3 +22,10 @@ jsonschema = { version = "0.60.2", default-features = false }
 serde = { workspace = true }
 sha2 = "0.10.9"
 serde_json = { workspace = true }
+
+[features]
+# Keeps JSON objects' members in the order they were read (serde_json's preserve_order), for
+# write_plain and to_string_value: a document read and written back keeps its layout. Off by
+# default, because Cargo turns a feature on for a whole build: a dependent's own serde_json would
+# change with it. Canonical form, hashes and to_string don't depend on it.
+preserve_order = ["serde_json/preserve_order"]

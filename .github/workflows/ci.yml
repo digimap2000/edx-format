@@ -34,6 +34,8 @@ jobs:
         run: cargo clippy --all-targets --locked -- -D warnings
       - name: Tests, including the conformance suite
         run: cargo test --locked
+      - name: The library on its own, without serde_json's preserve_order (canonical form must not need it)
+        run: cargo test --locked -p edx-format
       - name: Conformance suite through the command-line tool
         run: |
           cargo build --locked -p edx-cli

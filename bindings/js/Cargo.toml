@@ -13,6 +13,6 @@ name = "edx_format_wasm"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-edx-format = { path = "../../crates/edx-format" }
+edx-format = { path = "../../crates/edx-format", features = ["preserve_order"] }
 serde_json = { workspace = true }
 wasm-bindgen = "0.2.130"

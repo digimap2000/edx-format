@@ -28,7 +28,7 @@ fn merge(first: &str, second: &str) -> PyResult<String> {
 }
 
 /// Checks a document and, when it has no errors and is of a version this library knows, returns
-/// `{"ok": true, "canonical": text, "hashes": {...}}`; otherwise the result of `check`.
+/// `{"ok": true, "canonical": text, "hashes": {...}, "constraints": [...]}`; otherwise the result of `check`.
 #[pyfunction]
 fn canonical(data: &[u8]) -> String {
     let checked = edx_format::check(data);
@@ -39,6 +39,7 @@ fn canonical(data: &[u8]) -> String {
             "diagnostics": checked.diagnostics,
             "canonical": edx_format::to_canonical_string(doc),
             "hashes": edx_format::hashes(doc),
+            "constraints": edx_format::derive::constraints(doc),
         })
         .to_string(),
         _ => {

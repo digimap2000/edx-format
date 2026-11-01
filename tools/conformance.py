@@ -7,6 +7,7 @@ The tool must offer, like the reference `edx` command:
     TOOL merge --format json FIRST SECOND  -> the same, plus "result" when the merge succeeds
     TOOL fmt FILE                          -> the document in canonical form
     TOOL hash --format json FILE           -> {"design": "sha256:…", "rules": …, "constraints": …}
+    TOOL constraints --format json FILE    -> the constraints in force, derived and authored, as a list
 
 Each diagnostic has at least "code", "severity" and "pointer". The exit status is ignored.
 
@@ -61,6 +62,14 @@ def problems(case, tool):
             hashes = None
         if hashes != case["expect"]["hashes"]:
             yield f"expected hashes {case['expect']['hashes']}, got {hashes}"
+    if "constraints" in case["expect"]:
+        expected = json.loads((SUITE / case["expect"]["constraints"]).read_text())
+        try:
+            got = json.loads(output(tool, "constraints", "--format", "json", case["input"]))
+        except ValueError:
+            got = None
+        if got != expected:
+            yield f"the constraints in force differ from the expected file: got {got}"
     for diagnostics, _ in outcomes:
         errors = pairs(diagnostics, "error")
         if any(code == "EDX-E1000" for code, _ in expected_errors):

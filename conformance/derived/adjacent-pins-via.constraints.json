@@ -1,0 +1,44 @@
+[
+  {
+    "id": "via_policy:decouples%3AC1%2E1%3AU1%2E8:U1.1",
+    "type": "via_policy",
+    "operands": [
+      {
+        "relations": [
+          "decouples:C1.1:U1.8"
+        ]
+      },
+      {
+        "part": "U1",
+        "pad": "1"
+      }
+    ],
+    "value": "in_link",
+    "origin": "derived",
+    "source": {
+      "relation": "decouples:C1.1:U1.8",
+      "rule": "decouples.adjacent_pins_via"
+    }
+  },
+  {
+    "id": "via_policy:decouples%3AC3%2E1%3AU1%2E5:U1.1",
+    "type": "via_policy",
+    "operands": [
+      {
+        "relations": [
+          "decouples:C3.1:U1.5"
+        ]
+      },
+      {
+        "part": "U1",
+        "pad": "1"
+      }
+    ],
+    "value": "in_link",
+    "origin": "derived",
+    "source": {
+      "relation": "decouples:C3.1:U1.5",
+      "rule": "decouples.adjacent_pins_via"
+    }
+  }
+]

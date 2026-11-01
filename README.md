@@ -51,6 +51,7 @@ edx check --format json board.edx.json   # diagnostics as JSON, for other tools
 edx merge design.edx.json rules.edx.json -o merged.edx.json
 edx fmt board.edx.json                   # canonical form (section 13 of the spec)
 edx hash board.edx.json                  # sha256 of the design, rules and constraints
+edx constraints board.edx.json           # the constraints in force, derived and authored
 edx explain EDX-E3005
 ```
 

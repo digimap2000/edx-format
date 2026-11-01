@@ -11,6 +11,7 @@ Usage:
   edx merge [--format text|json] [-o OUT] FIRST SECOND
   edx fmt [-o OUT] FILE
   edx hash [--format text|json] FILE
+  edx constraints [--format text|json] FILE
   edx schema`;
 
 function main(argv) {
@@ -62,7 +63,8 @@ function main(argv) {
       return r.ok ? 0 : 1;
     }
     case "fmt":
-    case "hash": {
+    case "hash":
+    case "constraints": {
       if (files.length !== 1) break;
       try {
         const data = read(files[0]);
@@ -70,6 +72,10 @@ function main(argv) {
           const t = edx.dumps(data, { canonical: true });
           if (output) fs.writeFileSync(output, t);
           else process.stdout.write(t);
+        } else if (command === "constraints") {
+          const found = edx.constraints(data);
+          if (format === "json") console.log(JSON.stringify(found));
+          else for (const c of found) console.log(`${c.id}  (${c.origin})`);
         } else {
           const h = edx.hashes(data);
           if (format === "json") console.log(JSON.stringify(h));

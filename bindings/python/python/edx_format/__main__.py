@@ -48,6 +48,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     p = sub.add_parser("hash", help="print the hashes of its design, rules and constraints")
     p.add_argument("--format", choices=["text", "json"], default="text")
     p.add_argument("file")
+    p = sub.add_parser("constraints", help="list the constraints in force, derived and authored")
+    p.add_argument("--format", choices=["text", "json"], default="text")
+    p.add_argument("file")
     sub.add_parser("schema", help="print the JSON Schema")
     args = parser.parse_args(argv)
 
@@ -78,7 +81,7 @@ def main(argv: Optional[List[str]] = None) -> int:
             if merged is not None and not args.output:
                 sys.stdout.write(edx_format.dumps(merged))
         return 0 if result.ok else 1
-    if args.command in ("fmt", "hash"):
+    if args.command in ("fmt", "hash", "constraints"):
         try:
             data = _read(args.file)
             if args.command == "fmt":
@@ -88,6 +91,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f.write(text)
                 else:
                     sys.stdout.buffer.write(text.encode())
+            elif args.command == "constraints":
+                found = edx_format.constraints(data)
+                if args.format == "json":
+                    print(json.dumps(found, ensure_ascii=False))
+                else:
+                    for c in found:
+                        print(f"{c['id']}  ({c['origin']})")
             else:
                 hashes = edx_format.hashes(data)
                 if args.format == "json":

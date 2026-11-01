@@ -751,6 +751,50 @@
         ],
         "warnings": []
       }
+    },
+    {
+      "name": "adjacent-pins-via",
+      "clause": "9.5",
+      "description": "decouples.adjacent_pins_via gives one via_policy per decouples relation, over the IC's other pads on the same supply net that have no capacitor of their own.",
+      "input": "derived/adjacent-pins-via.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "constraints": "derived/adjacent-pins-via.constraints.json"
+      }
+    },
+    {
+      "name": "matched-tolerance",
+      "clause": "9.5",
+      "description": "clocks.matched_tolerance matches the legs of each crystal and IC: two crystals on one IC are matched apart.",
+      "input": "derived/matched-tolerance.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "constraints": "derived/matched-tolerance.constraints.json"
+      }
+    },
+    {
+      "name": "quiet-margin",
+      "clause": "9.5",
+      "description": "clocks.quiet_margin gives one quiet constraint per crystal, named after it, over the crystal, its load capacitors and its clock nets.",
+      "input": "derived/quiet-margin.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "constraints": "derived/quiet-margin.constraints.json"
+      }
+    },
+    {
+      "name": "near-default-measure",
+      "clause": "8.3",
+      "description": "near.max_distance without near.measure is measured centre to centre.",
+      "input": "derived/near-default-measure.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "constraints": "derived/near-default-measure.constraints.json"
+      }
     }
   ]
 }

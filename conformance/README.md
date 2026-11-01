@@ -8,6 +8,7 @@ Language-neutral test cases that every EDX implementation runs. `cases.json` lis
 | `valid/` | documents a conforming reader accepts, some with expected warnings |
 | `invalid/` | one fault per document, named after the code a conforming reader must report |
 | `canonical/` | documents written untidily, with the canonical form they must produce |
+| `derived/` | documents whose relations and rules derive constraints, with the constraints in force they must give |
 
 ## The case list
 
@@ -31,6 +32,10 @@ A canonical-form case adds `"canonical"` to `expect`, a file holding the exact b
 `canonical/` are written differently on purpose: indented by four spaces or by tabs, with CRLF line endings, members
 in reverse order, and so on.
 
+A derivation case adds `"constraints"` to `expect`, a file holding the constraints in force (section 9.5): those
+derived from the document's relations and rules, with its own constraints in place of any with the same id, ordered by
+id.
+
 A merge case has `"merge": [first, second]` instead of `input`: the two documents are merged (section 3.2 of the
 specification) and the merge result is checked.
 
@@ -43,6 +48,7 @@ An implementation passes a case when:
   since validators differ in how deep they point;
 - it reports every expected warning (further warnings are allowed);
 - for a canonical-form case, it writes exactly the expected bytes and computes exactly the expected hashes;
+- for a derivation case, it gives exactly the expected constraints, compared as JSON values;
 - for a merge case, merging in either order gives the same result.
 
 `invalid/` files with codes in `EDX-E0xxx` are deliberately broken bytes, not valid JSON. Read them as bytes.
@@ -57,7 +63,8 @@ An implementation passes a case when:
 
 `tools/conformance.py` runs every case through a command-line tool that offers `check --format json FILE` and
 `merge --format json FIRST SECOND`, and for the canonical-form cases `fmt FILE` (the canonical bytes on standard
-output) and `hash --format json FILE`, printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
+output) and `hash --format json FILE`, and for the derivation cases `constraints --format json FILE` (the constraints
+in force as a JSON list), printing `{"documents": [{"diagnostics": [...]}]}` (and `"result"` for a
 successful merge). Each diagnostic needs `code`, `severity` and `pointer`.
 
 ```sh

@@ -6,7 +6,7 @@ other `edx-format` package exactly. Works in Node.js 18 and later, and in bundle
 (webpack 5, or Vite with `vite-plugin-wasm`).
 
 ```js
-import { check, loads, dumps, hashes, merge } from "edx-format";
+import { check, loads, dumps, hashes, constraints, merge } from "edx-format";
 
 const result = check(fs.readFileSync("board.edx.json"));   // text, bytes or an object
 for (const d of result.diagnostics) console.log(d.code, d.pointer, d.message);
@@ -15,6 +15,7 @@ const doc = loads(text);                     // an object; throws EdxError if th
 dumps(doc);                                  // two-space indent, plain decimal numbers
 dumps(doc, { canonical: true });             // canonical form: one spelling per meaning
 hashes(doc);                                 // { design: "sha256:…", rules: …, constraints: … }
+constraints(doc);                            // the constraints in force, derived and authored
 merge(designDoc, rulesDoc);                  // { ok, diagnostics, document }
 ```
 

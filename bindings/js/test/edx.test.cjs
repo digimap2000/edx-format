@@ -41,6 +41,13 @@ test("canonical form and hashes agree with the suite", () => {
   assert.deepEqual(edx.hashes(file(c.input)), c.expect.hashes);
 });
 
+test("constraints in force agree with the suite", () => {
+  for (const c of JSON.parse(file("cases.json")).cases) {
+    if (!c.expect.constraints) continue;
+    assert.deepEqual(edx.constraints(file(c.input)), JSON.parse(file(c.expect.constraints)), c.name);
+  }
+});
+
 test("merging in either order", () => {
   const a = edx.loads(file("valid/design-only.edx.json"));
   const b = edx.loads(file("examples/rules-only.edx.json"));

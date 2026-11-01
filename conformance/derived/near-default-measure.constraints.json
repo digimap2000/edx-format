@@ -1,0 +1,23 @@
+[
+  {
+    "id": "max_distance:R1.1:U1.3",
+    "type": "max_distance",
+    "operands": [
+      {
+        "part": "R1",
+        "pad": "1"
+      },
+      {
+        "part": "U1",
+        "pad": "3"
+      }
+    ],
+    "value": 4,
+    "measure": "centre",
+    "origin": "derived",
+    "source": {
+      "relation": "near:R1.1:U1.3",
+      "rule": "near.max_distance"
+    }
+  }
+]

@@ -26,7 +26,7 @@ pub fn merge(first: &str, second: &str) -> Result<String, JsError> {
     Ok(outcome(&edx_format::merge(&parse(first)?, &parse(second)?)))
 }
 
-/// Checks a document and returns `{"ok": true, "canonical", "hashes"}`, or the result of `check` with
+/// Checks a document and returns `{"ok": true, "canonical", "hashes", "constraints"}`, or the result of `check` with
 /// `ok` false when the document has errors or is of a newer minor version.
 #[wasm_bindgen]
 pub fn canonical(data: &[u8]) -> String {
@@ -38,6 +38,7 @@ pub fn canonical(data: &[u8]) -> String {
             "diagnostics": checked.diagnostics,
             "canonical": edx_format::to_canonical_string(doc),
             "hashes": edx_format::hashes(doc),
+            "constraints": edx_format::derive::constraints(doc),
         })
         .to_string(),
         _ => {

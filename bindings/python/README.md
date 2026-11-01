@@ -20,11 +20,12 @@ doc["design"]["parts"][0]["value"] = "220nF"
 text = edx_format.dumps(doc)                          # two-space indent, plain decimal numbers
 text = edx_format.dumps(doc, canonical=True)          # canonical form: one spelling per meaning
 edx_format.hashes(doc)                                # {"design": "sha256:…", "rules": …, "constraints": …}
+edx_format.constraints(doc)                           # the constraints in force, derived and authored
 
 merged = edx_format.merge(design_doc, rules_doc)      # CheckResult; merged.document when merged.ok
 ```
 
-The package also installs the `edx` command (`edx check`, `edx merge`, `edx fmt`, `edx hash`, `edx schema`), the
+The package also installs the `edx` command (`edx check`, `edx merge`, `edx fmt`, `edx hash`, `edx constraints`, `edx schema`), the
 same interface as the Rust tool.
 
 Licence: MIT OR Apache-2.0.

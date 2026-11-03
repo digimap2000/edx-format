@@ -2815,7 +2815,7 @@
       ]
     },
     "report": {
-      "description": "The status of every constraint, and the gates (section 11.2).",
+      "description": "The status of every constraint, the gates, and the assessment against a suite of tests (section 11.2, 11.3).",
       "type": "object",
       "properties": {
         "inputs": {
@@ -2991,6 +2991,9 @@
             "clearance_clean"
           ]
         },
+        "assessment": {
+          "$ref": "#/$defs/assessment"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -2999,6 +3002,218 @@
         }
       },
       "additionalProperties": false
+    },
+    "assessment": {
+      "description": "A layout judged against a suite of tests: each result, the verdict, a quality index and the highest level passed (section 11.3).",
+      "type": "object",
+      "properties": {
+        "suite": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "version"
+          ]
+        },
+        "specimen": {
+          "type": "object",
+          "properties": {
+            "block": {
+              "$ref": "#/$defs/name"
+            },
+            "hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false
+        },
+        "engine": {
+          "type": "string"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assessment_result"
+          }
+        },
+        "passes": {
+          "type": "boolean"
+        },
+        "index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "grade": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "type": "string",
+              "minLength": 1
+            },
+            "stopped_by": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "level",
+            "stopped_by"
+          ]
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "suite",
+        "results",
+        "passes"
+      ]
+    },
+    "assessment_result": {
+      "description": "One test of an assessment: what it measured, where, and how it came out (section 11.3).",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1
+        },
+        "where": {
+          "$ref": "#/$defs/where"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "better": {
+          "enum": [
+            "lower",
+            "higher",
+            "neither"
+          ]
+        },
+        "value": {
+          "type": "number"
+        },
+        "limit": {
+          "type": "number"
+        },
+        "target": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "margin": {
+          "type": "number"
+        },
+        "desirability": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "info",
+            "not_measurable"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "number"
+              },
+              "note": {
+                "type": "string"
+              },
+              "extensions": {
+                "$ref": "#/$defs/extensions"
+              },
+              "extras": {
+                "$ref": "#/$defs/extras"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "metric",
+        "status"
+      ]
     }
   }
 }

@@ -561,7 +561,49 @@ does not match:
   involved, and the actual and required distances.
 - `gates`: `{ "constraints_met", "all_placed", "all_routed", "clearance_clean" }`, each a boolean.
 
+- `assessment`: the layout judged against a suite of tests (section 11.3).
+
 Every broken hard constraint MUST be listed. Unplaced parts are reported separately from overlaps.
+
+### 11.3 Assessment (`report.assessment`)
+
+Constraints (section 9) say what a layout must do; an assessment says how well a layout does it. A tool judges the
+layout against a suite of tests it holds, each measuring one metric and judging the value against a limit, and
+records each result, a verdict and, where the suite defines them, a quality index and the highest level passed.
+EDX carries the outcome, not the suite: a suite's form belongs to the tool that runs it.
+
+- `suite`: `{ "name", "version", "hash"? }`, the suite the layout was judged against. `hash` identifies the exact
+  suite, in a form the tool defines, so that two assessments can be known to be comparable.
+- `specimen`: `{ "block"?, "hash"? }`, what was judged: a block of the layout (section 9.2), or with no `block` the
+  whole layout. `hash` identifies the specimen in a form the tool defines.
+- `engine`: the tool and version that made the assessment, as text.
+- `results`: one per test, each:
+    - `id`: the result's identity, unique within the assessment;
+    - `metric`: what the test measured, as a name the tool defines (such as `si.skew` or `clearance_min`);
+    - `where`: the parts, nets or pads the test looked at, as in a constraint's `where` (section 11.2);
+    - `unit`: the value's unit, such as `mm`, `mm2` or `%`; with none the value is a plain number;
+    - `better`: `lower`, `higher` or `neither`: which way the value is better;
+    - `value`: the measured value, absent when the test could not measure;
+    - `limit`: the value the test fails beyond, in the direction `better` gives; `target`: the value at which the
+      test is fully satisfied;
+    - `weight`: the test's weight in `index`, greater than zero;
+    - `margin`: how far the value is inside its limit, negative when outside;
+    - `desirability`: from 0 (at or beyond the limit) to 1 (at or beyond the target);
+    - `status`: `pass`, `fail`, `info` (measured, not judged) or `not_measurable`;
+    - `items`: `{ "name", "value"?, "note"? }` for each net, pair of nets or other thing the test looked at, worst
+      first;
+    - `note`: text, such as why the test could not measure.
+- `passes`: `true` when every test the verdict depends on passes.
+- `index`: a quality index from 0 to 100 that combines the results' desirabilities in a way the tool defines; higher
+  is better.
+- `grade`: the highest level of the suite the layout reaches, where the suite has levels.
+- `next`: `{ "level", "stopped_by" }`, the next level up and the `id`s of the results that keep the layout from it.
+
+Metric names are the tool's own in this version. A registry of metrics with defined methods, so that assessments
+made by different tools can be compared, is planned for a later minor version.
+
+Every `id` in `next.stopped_by` MUST be the `id` of a result in `results`. A `where` MUST name parts, nets and pads
+that exist, and `specimen.block` a block that exists.
 
 ## 12. Versioning and extensions
 
@@ -724,7 +766,7 @@ Initial codes:
 | `EDX-E2009` | semantics | a stated relation id differs from the derived id |
 | `EDX-E2010` | semantics | a reference names a net that does not exist |
 | `EDX-E2011` | semantics | a reference names a layer that does not exist |
-| `EDX-E2012` | semantics | a reference names a region, block or relation that does not exist |
+| `EDX-E2012` | semantics | a reference names a region, block, relation or assessment result that does not exist |
 | `EDX-W2013` | semantics | a layout or report states an input hash that differs from the document's section (section 13.2) |
 | `EDX-E3001` | semantics | an arc whose radii differ, or are zero |
 | `EDX-E3002` | semantics | a subpath crosses itself or encloses no area |

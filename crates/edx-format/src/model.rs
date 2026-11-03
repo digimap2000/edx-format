@@ -700,6 +700,122 @@ pub struct Report {
     pub clearance: Vec<ClearanceViolation>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gates: Option<Gates>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub assessment: Option<Assessment>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// A layout judged against a suite of tests (section 11.3).
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Assessment {
+    pub suite: SuiteRef,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub specimen: Option<Specimen>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub engine: Option<String>,
+    pub results: Vec<AssessmentResult>,
+    pub passes: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub index: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grade: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub next: Option<Shortfall>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// The suite an assessment was made under.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SuiteRef {
+    pub name: String,
+    pub version: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hash: Option<String>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// What was assessed: a block, or with none the whole layout.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Specimen {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub block: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hash: Option<String>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// How a test came out.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TestStatus {
+    Pass,
+    Fail,
+    Info,
+    NotMeasurable,
+}
+
+/// Which way a metric is better.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Better {
+    Lower,
+    Higher,
+    Neither,
+}
+
+/// One test of an assessment.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AssessmentResult {
+    pub id: String,
+    pub metric: String,
+    #[serde(default, rename = "where", skip_serializing_if = "Option::is_none")]
+    pub location: Option<Where>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub better: Option<Better>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub limit: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub target: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weight: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub margin: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub desirability: Option<f64>,
+    pub status: TestStatus,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub items: Vec<AssessmentItem>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// One net, pair of nets or other thing a test looked at.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct AssessmentItem {
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// The next level up, and the results that kept the layout from it, by id.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Shortfall {
+    pub level: String,
+    pub stopped_by: Vec<String>,
     #[serde(flatten)]
     pub ext: Ext,
 }

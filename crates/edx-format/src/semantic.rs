@@ -419,6 +419,49 @@ impl<'a> Checker<'a> {
                     self.pad(p, &format!("/report/unrouted/{i}/pads/{j}"));
                 }
             }
+            if let Some(a) = &report.assessment {
+                if let Some(block) = a.specimen.as_ref().and_then(|s| s.block.as_ref()) {
+                    if !self.blocks.contains(block) {
+                        self.push(
+                            "EDX-E2012",
+                            "/report/assessment/specimen/block".to_owned(),
+                            format!("no block `{block}`"),
+                        );
+                    }
+                }
+                let mut ids = HashSet::new();
+                for (i, r) in a.results.iter().enumerate() {
+                    if !ids.insert(r.id.as_str()) {
+                        self.push(
+                            "EDX-E2006",
+                            format!("/report/assessment/results/{i}/id"),
+                            format!("another assessment result is already `{}`", r.id),
+                        );
+                    }
+                    if let Some(w) = &r.location {
+                        for (j, n) in w.nets.iter().enumerate() {
+                            self.net(n, format!("/report/assessment/results/{i}/where/nets/{j}"));
+                        }
+                        for (j, p) in w.parts.iter().enumerate() {
+                            self.part(p, format!("/report/assessment/results/{i}/where/parts/{j}"));
+                        }
+                        for (j, p) in w.pads.iter().enumerate() {
+                            self.pad(p, &format!("/report/assessment/results/{i}/where/pads/{j}"));
+                        }
+                    }
+                }
+                if let Some(n) = &a.next {
+                    for (j, id) in n.stopped_by.iter().enumerate() {
+                        if !ids.contains(id.as_str()) {
+                            self.push(
+                                "EDX-E2012",
+                                format!("/report/assessment/next/stopped_by/{j}"),
+                                format!("no assessment result is `{id}`"),
+                            );
+                        }
+                    }
+                }
+            }
         }
     }
 

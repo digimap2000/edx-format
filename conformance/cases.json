@@ -142,6 +142,16 @@
       }
     },
     {
+      "name": "assessment",
+      "clause": "11.3",
+      "description": "A report carrying an assessment: three test results, a failing verdict, the grade reached and the result that stops the next level.",
+      "input": "valid/assessment.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
       "name": "stale-inputs",
       "clause": "11",
       "description": "The design changed after the layout and report were made, so their design hashes no longer match: a warning, not an error.",
@@ -480,6 +490,21 @@
       }
     },
     {
+      "name": "duplicate-assessment-result",
+      "clause": "11.3",
+      "description": "Two assessment results share an id; the later one is reported.",
+      "input": "invalid/E2006-duplicate-assessment-result.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2006",
+            "pointer": "/report/assessment/results/1/id"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
       "name": "layout-on-incomplete-design",
       "clause": "4",
       "description": "A layout section on a design with no nets.",
@@ -549,6 +574,21 @@
           {
             "code": "EDX-E2012",
             "pointer": "/constraints/1/operands/0/region"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "unknown-stopped-by",
+      "clause": "11.3",
+      "description": "next.stopped_by names a result the assessment does not have.",
+      "input": "invalid/E2012-unknown-stopped-by.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2012",
+            "pointer": "/report/assessment/next/stopped_by/0"
           }
         ],
         "warnings": []
@@ -794,6 +834,36 @@
         "errors": [],
         "warnings": [],
         "constraints": "derived/near-default-measure.constraints.json"
+      }
+    },
+    {
+      "name": "assessment-unknown-status",
+      "clause": "11.3",
+      "description": "An assessment result's status is not one of pass, fail, info or not_measurable.",
+      "input": "invalid/E1000-assessment-unknown-status.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/report/assessment/results/2/status"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-unknown-net",
+      "clause": "11.3",
+      "description": "An assessment result's where names a net the design does not have.",
+      "input": "invalid/E2010-assessment-unknown-net.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2010",
+            "pointer": "/report/assessment/results/1/where/nets/0"
+          }
+        ],
+        "warnings": []
       }
     }
   ]

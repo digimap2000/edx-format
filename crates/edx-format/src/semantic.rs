@@ -438,15 +438,19 @@ impl<'a> Checker<'a> {
                             format!("another assessment result is already `{}`", r.id),
                         );
                     }
-                    if let Some(w) = &r.location {
+                    let wheres = r.location.iter().map(|w| (w, format!("/report/assessment/results/{i}/where")));
+                    let items = r.items.iter().enumerate().filter_map(|(k, it)| {
+                        it.location.as_ref().map(|w| (w, format!("/report/assessment/results/{i}/items/{k}/where")))
+                    });
+                    for (w, at) in wheres.chain(items) {
                         for (j, n) in w.nets.iter().enumerate() {
-                            self.net(n, format!("/report/assessment/results/{i}/where/nets/{j}"));
+                            self.net(n, format!("{at}/nets/{j}"));
                         }
                         for (j, p) in w.parts.iter().enumerate() {
-                            self.part(p, format!("/report/assessment/results/{i}/where/parts/{j}"));
+                            self.part(p, format!("{at}/parts/{j}"));
                         }
                         for (j, p) in w.pads.iter().enumerate() {
-                            self.pad(p, &format!("/report/assessment/results/{i}/where/pads/{j}"));
+                            self.pad(p, &format!("{at}/pads/{j}"));
                         }
                     }
                 }

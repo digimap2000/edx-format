@@ -795,18 +795,38 @@ pub struct AssessmentResult {
     pub items: Vec<AssessmentItem>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
+    /// The requirement the test checks, as its author states it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    /// How the value was measured.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub method: Option<String>,
     #[serde(flatten)]
     pub ext: Ext,
+}
+
+/// Whether one item of a test is within the test's limit.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ItemStatus {
+    Pass,
+    Fail,
 }
 
 /// One net, pair of nets or other thing a test looked at.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct AssessmentItem {
     pub name: String,
+    #[serde(default, rename = "where", skip_serializing_if = "Option::is_none")]
+    pub location: Option<Where>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub margin: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<ItemStatus>,
     #[serde(flatten)]
     pub ext: Ext,
 }

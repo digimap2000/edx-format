@@ -493,6 +493,23 @@ impl<'a> Checker<'a> {
                     "the stack-up must start with a layer named `top` and end with one named `bottom`",
                 );
             }
+            let n = b.stackup.len();
+            for (i, l) in b.stackup.iter().enumerate() {
+                if i + 1 == n && l.dielectric.is_some() {
+                    self.push(
+                        "EDX-E3007",
+                        format!("/design/board/stackup/{i}/dielectric"),
+                        "the last layer has no dielectric below it: the board ends there",
+                    );
+                }
+                if i != 0 && i + 1 != n && l.mask.is_some() {
+                    self.push(
+                        "EDX-E3007",
+                        format!("/design/board/stackup/{i}/mask"),
+                        format!("`{}` is an inner layer: only the outer layers have solder mask", l.name),
+                    );
+                }
+            }
         }
         for (i, p) in d.packages.iter().flatten().enumerate() {
             let at = format!("/design/packages/{i}");

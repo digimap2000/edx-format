@@ -249,6 +249,30 @@ holds.
     - A `plane` layer MUST name its `plane_net`. That net fills the layer except where pours of other nets on it
       take precedence (section 5.6), as an island of `+1V8` inside a `+3V3` plane.
     - `routable: false` forbids tracks on the layer.
+    - A layer MAY give its physics, which analyses of impedance, capacitance, crosstalk and loop inductance need:
+        - `copper_thickness` (length): the finished copper;
+        - `dielectric`: the insulator **below** this layer, toward the next: `{ "thickness", "er", "loss_tangent"?,
+          "kind"?: "core" | "prepreg", "material"?, "er_frequency"? }`. `thickness` is a length and `er` the relative
+          permittivity, greater than 1; `er_frequency` is the frequency in Hz that `er` is quoted at. The last layer
+          MUST NOT have one: the board ends there;
+        - `mask` on an outer layer only: the solder mask's `{ "thickness", "er" }`.
+    - A stack-up is **physical** when every layer gives `copper_thickness` and every layer but the last a
+      `dielectric`. The board's thickness is then the sum of its copper, dielectrics and masks. An analysis that needs
+      the physics reports `not_measurable` on a stack-up that is not physical.
+
+```json
+"stackup": [
+  { "name": "top", "role": "signal", "routable": true, "copper_thickness": 0.035,
+    "mask": { "thickness": 0.015, "er": 3.8 },
+    "dielectric": { "thickness": 0.21, "er": 4.4, "kind": "prepreg", "material": "7628" } },
+  { "name": "In1", "role": "plane", "routable": false, "plane_net": "GND", "copper_thickness": 0.035,
+    "dielectric": { "thickness": 1.065, "er": 4.6, "kind": "core" } },
+  { "name": "In2", "role": "plane", "routable": false, "plane_net": "+3V3", "copper_thickness": 0.035,
+    "dielectric": { "thickness": 0.21, "er": 4.4, "kind": "prepreg" } },
+  { "name": "bottom", "role": "signal", "routable": true, "copper_thickness": 0.035,
+    "mask": { "thickness": 0.015, "er": 3.8 } }
+]
+```
 
 Any part may go on either side unless a `side` constraint (section 9.2) says otherwise.
 
@@ -396,7 +420,11 @@ body: it moves and turns as one, and does not flip in version 1.0.
 ### 8.2 Net classes
 
 - `classes` maps each class name to its electrical rules: `clearance`, `track_width` (`min` and `preferred`), `via`
-  (`pad` and `drill`), and per-layer overrides under `layers.<layer name>`.
+  (`pad` and `drill`), `impedance`, and per-layer overrides under `layers.<layer name>` (of all but `impedance`).
+- `impedance` gives the class's targets in ohms: `{ "single"?, "differential"?, "tolerance"? }`, at least one of
+  `single` (each net's characteristic impedance) and `differential` (a pair's). `tolerance` is the fraction either
+  way a value may differ, such as `0.1`. A check of impedance MAY be derived from it, as `matched` derives one of
+  length.
 - Every class a net names MUST be defined. A complete document defines class `default` in full (section 4).
 - Any other class takes each value it omits from `default`.
 
@@ -778,6 +806,7 @@ Initial codes:
 | `EDX-E3004` | semantics | the stack-up does not start with `top` and end with `bottom` |
 | `EDX-E3005` | semantics | two pours of different nets overlap on a layer at the same priority |
 | `EDX-E3006` | semantics | a circular pad whose width and height differ |
+| `EDX-E3007` | semantics | a dielectric below the last layer, or solder mask on an inner layer |
 | `EDX-E4001` | semantics | a relation kind with no rule, in a document that must be complete |
 | `EDX-E4002` | semantics | two authored constraints contradict each other |
 

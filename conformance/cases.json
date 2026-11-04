@@ -22,6 +22,16 @@
       }
     },
     {
+      "name": "physical-stackup",
+      "clause": "5.1",
+      "description": "The base document with its stack-up's physics (copper, the dielectric below top, solder mask) and an impedance target on the default class.",
+      "input": "valid/physical-stackup.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
       "name": "design-only",
       "clause": "3",
       "description": "A design without rules: incomplete, which is valid when nothing needs it complete.",
@@ -685,6 +695,21 @@
       }
     },
     {
+      "name": "dielectric-below-bottom",
+      "clause": "5.1",
+      "description": "The last layer has a dielectric below it, where the board ends.",
+      "input": "invalid/E3007-dielectric-below-bottom.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3007",
+            "pointer": "/design/board/stackup/1/dielectric"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
       "name": "relation-without-rule",
       "clause": "4",
       "description": "A layout on a document whose relation kind has no rule.",
@@ -861,6 +886,36 @@
           {
             "code": "EDX-E1000",
             "pointer": "/report/assessment/results/2/items/0/status"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "permittivity-below-one",
+      "clause": "5.1",
+      "description": "A dielectric's relative permittivity is greater than 1.",
+      "input": "invalid/E1000-permittivity-below-one.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/board/stackup/0/dielectric/er"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "impedance-without-target",
+      "clause": "8.2",
+      "description": "A class's impedance gives single, differential or both, not a tolerance alone.",
+      "input": "invalid/E1000-impedance-without-target.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/rules/classes/default/impedance"
           }
         ],
         "warnings": []

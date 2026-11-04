@@ -263,6 +263,16 @@
           "description": "For a plane layer, the net that fills it.",
           "$ref": "#/$defs/name"
         },
+        "copper_thickness": {
+          "description": "The finished copper's thickness.",
+          "$ref": "#/$defs/positive_length"
+        },
+        "dielectric": {
+          "$ref": "#/$defs/dielectric"
+        },
+        "mask": {
+          "$ref": "#/$defs/mask"
+        },
         "extensions": {
           "$ref": "#/$defs/extensions"
         },
@@ -288,6 +298,75 @@
           "plane_net"
         ]
       }
+    },
+    "dielectric": {
+      "description": "The insulator below a copper layer, toward the next (section 5.1).",
+      "type": "object",
+      "properties": {
+        "thickness": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "er": {
+          "description": "Relative permittivity.",
+          "type": "number",
+          "exclusiveMinimum": 1
+        },
+        "loss_tangent": {
+          "type": "number",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": [
+            "core",
+            "prepreg"
+          ]
+        },
+        "material": {
+          "type": "string",
+          "minLength": 1
+        },
+        "er_frequency": {
+          "description": "The frequency er is quoted at, in Hz.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "thickness",
+        "er"
+      ]
+    },
+    "mask": {
+      "description": "Solder mask over an outer copper layer (section 5.1).",
+      "type": "object",
+      "properties": {
+        "thickness": {
+          "$ref": "#/$defs/positive_length"
+        },
+        "er": {
+          "description": "Relative permittivity.",
+          "type": "number",
+          "exclusiveMinimum": 1
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "thickness",
+        "er"
+      ]
     },
     "board": {
       "description": "The board (section 5.1).",
@@ -1053,6 +1132,47 @@
       },
       "additionalProperties": false
     },
+    "impedance": {
+      "description": "Impedance targets for a net class, in ohms (section 8.2).",
+      "type": "object",
+      "properties": {
+        "single": {
+          "description": "Single-ended characteristic impedance.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "differential": {
+          "description": "Differential impedance of a pair.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "tolerance": {
+          "description": "The fraction either way a value may differ from its target, such as 0.1.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "extensions": {
+          "$ref": "#/$defs/extensions"
+        },
+        "extras": {
+          "$ref": "#/$defs/extras"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "single"
+          ]
+        },
+        {
+          "required": [
+            "differential"
+          ]
+        }
+      ]
+    },
     "net_class": {
       "description": "Electrical rules for a net class. Classes other than default take omitted values from default (section 8.2).",
       "type": "object",
@@ -1065,6 +1185,9 @@
         },
         "via": {
           "$ref": "#/$defs/via_size"
+        },
+        "impedance": {
+          "$ref": "#/$defs/impedance"
         },
         "layers": {
           "type": "object",

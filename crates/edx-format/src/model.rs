@@ -112,6 +112,50 @@ pub struct Layer {
     pub routable: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub plane_net: Option<String>,
+    /// The finished copper's thickness, mm.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub copper_thickness: Option<f64>,
+    /// The insulator below this layer, toward the next; none below the last.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub dielectric: Option<Dielectric>,
+    /// Solder mask over an outer layer.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mask: Option<Mask>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// The insulator between two copper layers (section 5.1).
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Dielectric {
+    pub thickness: f64,
+    /// Relative permittivity.
+    pub er: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub loss_tangent: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<DielectricKind>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub material: Option<String>,
+    /// The frequency `er` is quoted at, Hz.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub er_frequency: Option<f64>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DielectricKind {
+    Core,
+    Prepreg,
+}
+
+/// Solder mask over an outer copper layer (section 5.1).
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Mask {
+    pub thickness: f64,
+    pub er: f64,
     #[serde(flatten)]
     pub ext: Ext,
 }
@@ -369,8 +413,25 @@ pub struct NetClass {
     pub track_width: Option<TrackWidth>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub via: Option<ViaSize>,
+    /// Impedance targets, on a class only (not a layer's override).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub impedance: Option<Impedance>,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub layers: BTreeMap<String, NetClass>,
+    #[serde(flatten)]
+    pub ext: Ext,
+}
+
+/// A net class's impedance targets, ohms (section 8.2).
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Impedance {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub single: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub differential: Option<f64>,
+    /// The fraction either way a value may differ from its target.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tolerance: Option<f64>,
     #[serde(flatten)]
     pub ext: Ext,
 }

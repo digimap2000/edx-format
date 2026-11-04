@@ -89,6 +89,7 @@ pub const CODES: &[(&str, &str)] = &[
     ("EDX-E3004", "the stack-up does not start with `top` and end with `bottom`"),
     ("EDX-E3005", "two pours of different nets overlap on a layer at the same priority"),
     ("EDX-E3006", "a circular pad whose width and height differ"),
+    ("EDX-E3007", "a dielectric below the last layer, or solder mask on an inner layer"),
     ("EDX-E4001", "a relation kind with no rule, in a document that must be complete"),
     ("EDX-E4002", "two authored constraints contradict each other"),
 ];

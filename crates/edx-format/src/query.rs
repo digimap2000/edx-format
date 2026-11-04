@@ -40,6 +40,47 @@ impl Design {
     }
 }
 
+impl Board {
+    /// Whether the stack-up is physical (section 5.1): every layer gives its copper thickness and
+    /// every layer but the last the dielectric below it.
+    pub fn is_physical(&self) -> bool {
+        let n = self.stackup.len();
+        n >= 2
+            && self.stackup.iter().all(|l| l.copper_thickness.is_some())
+            && self.stackup[..n - 1].iter().all(|l| l.dielectric.is_some())
+    }
+
+    /// The board's thickness from its stack-up: copper, dielectrics and masks; none unless physical.
+    pub fn thickness(&self) -> Option<f64> {
+        self.is_physical().then(|| {
+            self.stackup
+                .iter()
+                .map(|l| {
+                    l.copper_thickness.unwrap_or(0.0)
+                        + l.dielectric.as_ref().map_or(0.0, |d| d.thickness)
+                        + l.mask.as_ref().map_or(0.0, |m| m.thickness)
+                })
+                .sum()
+        })
+    }
+
+    /// The distance from the bottom of layer `from`'s copper to the top of layer `to`'s, through
+    /// the dielectrics and copper between, `from` above `to`: the height of a track on `from` over
+    /// a reference on `to`. None unless both are layers of a physical stack-up, `from` above `to`.
+    pub fn separation(&self, from: &str, to: &str) -> Option<f64> {
+        let i = self.stackup.iter().position(|l| l.name == from)?;
+        let j = self.stackup.iter().position(|l| l.name == to)?;
+        if !self.is_physical() || i >= j {
+            return None;
+        }
+        let between: f64 = self.stackup[i + 1..j].iter().map(|l| l.copper_thickness.unwrap_or(0.0)).sum();
+        Some(
+            self.stackup[i..j].iter().map(|l| l.dielectric.as_ref().map_or(0.0, |d| d.thickness)).sum::<f64>()
+                + between,
+        )
+    }
+}
+
 impl Package {
     /// The pads with a number: more than one when they share it, as one electrical pad (section 5.2).
     pub fn pads_numbered<'a>(&'a self, number: &'a str) -> impl Iterator<Item = &'a Pad> + 'a {
@@ -81,6 +122,8 @@ pub struct ClassValues {
     pub clearance: Option<f64>,
     pub track_width: Option<TrackWidth>,
     pub via: Option<ViaSize>,
+    /// From the class, else `default`; layers do not override it.
+    pub impedance: Option<Impedance>,
 }
 
 impl Rules {
@@ -105,6 +148,7 @@ impl Rules {
             clearance: chain.iter().find_map(|c| c.clearance),
             track_width: chain.iter().find_map(|c| c.track_width.clone()),
             via: chain.iter().find_map(|c| c.via.clone()),
+            impedance: [name, DEFAULT_CLASS].iter().find_map(|n| get(n).and_then(|c| c.impedance.clone())),
         }
     }
 }
@@ -150,6 +194,48 @@ mod tests {
         assert_eq!(rules.class("Unknown", None).clearance, Some(0.15));
         let missing: Vec<String> = crate::incomplete(&d).into_iter().map(|e| e.message).collect();
         assert_eq!(missing, ["a layout engine or checker needs a design"]);
+    }
+
+    #[test]
+    fn a_physical_stackup_gives_thickness_and_heights() {
+        let board = |stackup: &str| -> Board {
+            let d = doc(&format!(
+                r#"{{ "edx": "1.0", "design": {{ "board": {{ "outline": ["M 0 0 H 10 V 10 H 0 Z"], "stackup": {stackup} }} }} }}"#
+            ));
+            d.design.unwrap().board.unwrap()
+        };
+        let b = board(
+            r#"[ { "name": "top", "role": "signal", "routable": true, "copper_thickness": 0.035, "mask": { "thickness": 0.015, "er": 3.8 },
+                   "dielectric": { "thickness": 0.21, "er": 4.4, "kind": "prepreg" } },
+                 { "name": "In1", "role": "plane", "routable": false, "plane_net": "GND", "copper_thickness": 0.035,
+                   "dielectric": { "thickness": 1.065, "er": 4.6, "kind": "core" } },
+                 { "name": "In2", "role": "plane", "routable": false, "plane_net": "VCC", "copper_thickness": 0.035,
+                   "dielectric": { "thickness": 0.21, "er": 4.4 } },
+                 { "name": "bottom", "role": "signal", "routable": true, "copper_thickness": 0.035, "mask": { "thickness": 0.015, "er": 3.8 } } ]"#,
+        );
+        assert!(b.is_physical());
+        // 4 x 0.035 copper, 0.21 + 1.065 + 0.21 of dielectric, two masks of 0.015.
+        assert!((b.thickness().unwrap() - 1.655).abs() < 1e-9);
+        // A top track over In1: the prepreg alone. Over In2: prepreg, In1's copper and the core.
+        assert!((b.separation("top", "In1").unwrap() - 0.21).abs() < 1e-9);
+        assert!((b.separation("top", "In2").unwrap() - 1.31).abs() < 1e-9);
+        assert_eq!(b.separation("In2", "top"), None);
+        // Names, roles and plane nets alone are not physical.
+        let plain = board(
+            r#"[ { "name": "top", "role": "signal", "routable": true }, { "name": "bottom", "role": "signal", "routable": true } ]"#,
+        );
+        assert!(!plain.is_physical() && plain.thickness().is_none() && plain.separation("top", "bottom").is_none());
+    }
+
+    #[test]
+    fn impedance_comes_from_the_class_or_default_never_a_layer() {
+        let d = doc(r#"{ "edx": "1.0", "rules": { "classes": {
+            "default": { "impedance": { "single": 50, "tolerance": 0.1 } },
+            "USB": { "impedance": { "differential": 90 }, "layers": { "top": { "clearance": 0.1 } } },
+            "Power": { "clearance": 0.3 } } } }"#);
+        let rules = d.rules.as_ref().unwrap();
+        assert_eq!(rules.class("USB", Some("top")).impedance.unwrap().differential, Some(90.0));
+        assert_eq!(rules.class("Power", None).impedance.unwrap().single, Some(50.0));
     }
 
     #[test]

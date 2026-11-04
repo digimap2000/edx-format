@@ -3179,11 +3179,23 @@
                 "type": "string",
                 "minLength": 1
               },
+              "where": {
+                "$ref": "#/$defs/where"
+              },
               "value": {
                 "type": "number"
               },
               "note": {
                 "type": "string"
+              },
+              "margin": {
+                "type": "number"
+              },
+              "status": {
+                "enum": [
+                  "pass",
+                  "fail"
+                ]
               },
               "extensions": {
                 "$ref": "#/$defs/extensions"
@@ -3200,6 +3212,16 @@
         },
         "note": {
           "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The requirement the test checks, as its author states it: a datasheet section, a design rule."
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "description": "How the value was measured, in enough detail to check it by hand."
         },
         "extensions": {
           "$ref": "#/$defs/extensions"

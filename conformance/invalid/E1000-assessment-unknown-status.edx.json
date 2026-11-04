@@ -325,9 +325,18 @@
           "items": [
             {
               "name": "VCC",
-              "value": 1.98
+              "where": {
+                "nets": [
+                  "VCC"
+                ]
+              },
+              "value": 1.98,
+              "margin": 0.02,
+              "status": "pass"
             }
-          ]
+          ],
+          "source": "datasheet 4.2: VCC track at most 2 mm",
+          "method": "The routed length from pad to pad along the copper: the shortest path through the net's tracks, arcs and vias."
         },
         {
           "id": "routed",
@@ -343,7 +352,14 @@
             {
               "name": "GND",
               "value": 1,
-              "note": "C1.2 and U1.2 are not joined"
+              "note": "C1.2 and U1.2 are not joined",
+              "where": {
+                "nets": [
+                  "GND"
+                ]
+              },
+              "margin": -1,
+              "status": "fail"
             }
           ]
         }

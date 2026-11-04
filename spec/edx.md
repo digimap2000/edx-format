@@ -590,9 +590,13 @@ EDX carries the outcome, not the suite: a suite's form belongs to the tool that 
     - `margin`: how far the value is inside its limit, negative when outside;
     - `desirability`: from 0 (at or beyond the limit) to 1 (at or beyond the target);
     - `status`: `pass`, `fail`, `info` (measured, not judged) or `not_measurable`;
-    - `items`: `{ "name", "value"?, "note"? }` for each net, pair of nets or other thing the test looked at, worst
-      first;
-    - `note`: text, such as why the test could not measure.
+    - `items`: `{ "name", "where"?, "value"?, "note"?, "margin"?, "status"? }` for each net, pair of nets or other
+      thing the test looked at, worst first. `where` names it as a result's does; `margin` and `status` (`pass` or
+      `fail`) judge the item against the test's limit, as the result's judge its value;
+    - `note`: text, such as why the test could not measure;
+    - `source`: the requirement the test checks, as its author states it, such as a datasheet section or a design
+      rule, so that a failure says which requirement it broke;
+    - `method`: how the value was measured, in enough detail to check it by hand.
 - `passes`: `true` when every test the verdict depends on passes.
 - `index`: a quality index from 0 to 100 that combines the results' desirabilities in a way the tool defines; higher
   is better.
@@ -602,8 +606,8 @@ EDX carries the outcome, not the suite: a suite's form belongs to the tool that 
 Metric names are the tool's own in this version. A registry of metrics with defined methods, so that assessments
 made by different tools can be compared, is planned for a later minor version.
 
-Every `id` in `next.stopped_by` MUST be the `id` of a result in `results`. A `where` MUST name parts, nets and pads
-that exist, and `specimen.block` a block that exists.
+Every `id` in `next.stopped_by` MUST be the `id` of a result in `results`. A `where`, on a result or an item, MUST
+name parts, nets and pads that exist, and `specimen.block` a block that exists.
 
 ## 12. Versioning and extensions
 

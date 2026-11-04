@@ -144,7 +144,7 @@
     {
       "name": "assessment",
       "clause": "11.3",
-      "description": "A report carrying an assessment: three test results, a failing verdict, the grade reached and the result that stops the next level.",
+      "description": "A report carrying an assessment: three test results, one with its source and method, items judged against their limits, a failing verdict, the grade reached and the result that stops the next level.",
       "input": "valid/assessment.edx.json",
       "expect": {
         "errors": [],
@@ -852,6 +852,21 @@
       }
     },
     {
+      "name": "assessment-item-info",
+      "clause": "11.3",
+      "description": "An assessment item's status is pass or fail: an item is judged against its test's limit, or not at all.",
+      "input": "invalid/E1000-assessment-item-info.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/report/assessment/results/2/items/0/status"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
       "name": "assessment-unknown-net",
       "clause": "11.3",
       "description": "An assessment result's where names a net the design does not have.",
@@ -861,6 +876,21 @@
           {
             "code": "EDX-E2010",
             "pointer": "/report/assessment/results/1/where/nets/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-item-unknown-net",
+      "clause": "11.3",
+      "description": "An assessment item's where names a net the design does not have.",
+      "input": "invalid/E2010-assessment-item-unknown-net.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E2010",
+            "pointer": "/report/assessment/results/2/items/0/where/nets/0"
           }
         ],
         "warnings": []

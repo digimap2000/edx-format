@@ -25,7 +25,7 @@ pub mod sexpr;
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use edx_format::geometry::normalize_angle;
+use edx_format::geometry::{self, normalize_angle};
 use edx_format::model::*;
 use edx_format::shape::{self, Subpath};
 use edx_format::Transform;
@@ -120,7 +120,7 @@ struct Footprint {
     locked: bool,
     dnp: bool,
     package: Package,
-    /// The courtyard on the board, for the edge test.
+    /// The courtyard on the board, for the edge test: the nominal one when the footprint has none.
     courtyard: Vec<String>,
     /// Each pad's net, by pad number.
     nets: Vec<(String, String)>,
@@ -480,20 +480,25 @@ impl<'a> Reader<'a> {
             }
             loops.extend(geom::chain(open).0);
             let board_loops: Vec<Subpath> = loops.iter().map(|l| geom::subpath(l)).collect();
-            let mut courtyard: Vec<String> = geom::nest(et.invert_subpaths(&board_loops))
+            let courtyard: Vec<String> = geom::nest(et.invert_subpaths(&board_loops))
                 .iter()
                 .map(|subs| shape::write(subs))
                 .filter(|d| shape::check(d).is_empty())
                 .collect();
-            if courtyard.is_empty() {
-                self.notes.add("footprints with no closed courtyard get one drawn 0.25 mm round their pads");
-                courtyard = vec![around_pads(&pads, 0.25)];
-            }
-            let on_board = courtyard.iter().filter_map(|d| et.apply_shape(d).ok()).collect();
+            let courtyard = if courtyard.is_empty() {
+                // Not invented: readers take the nominal courtyard round the pads (section 5.2).
+                self.notes.add("footprints with no closed courtyard are converted without one");
+                None
+            } else {
+                Some(Courtyard { top: courtyard, bottom: None, ext: Ext::default() })
+            };
 
             let attr = fp.child("attr");
             let dnp = attr.is_some_and(|a| a.has_atom("dnp")) || fp.flag("dnp");
             let class = classify(&lib, &reference, &pads);
+            let package =
+                Package { id: String::new(), class: class.into(), pads, courtyard, body: None, ext: Ext::default() };
+            let courtyard = geometry::courtyard(&package).iter().filter_map(|d| et.apply_shape(d).ok()).collect();
             out.push(Footprint {
                 reference,
                 value,
@@ -503,15 +508,8 @@ impl<'a> Reader<'a> {
                 angle,
                 locked: fp.flag("locked"),
                 dnp,
-                package: Package {
-                    id: String::new(),
-                    class: class.into(),
-                    pads,
-                    courtyard: Courtyard { top: courtyard, bottom: None, ext: Ext::default() },
-                    body: None,
-                    ext: Ext::default(),
-                },
-                courtyard: on_board,
+                package,
+                courtyard,
                 nets,
             });
         }
@@ -1113,26 +1111,6 @@ fn custom(pad: &Node, w: f64, h: f64) -> Option<Vec<Point>> {
     let mut ring: Vec<Point> = biggest.exterior().coords().map(|c| [c.x, c.y]).collect();
     ring.pop();
     (ring.len() >= 3).then_some(ring)
-}
-
-/// A rectangle `margin` round a package's pads, as a shape.
-fn around_pads(pads: &[Pad], margin: f64) -> String {
-    let (mut lo, mut hi) = ([f64::MAX; 2], [f64::MIN; 2]);
-    for p in pads {
-        let r = match (p.size, &p.outline) {
-            (Some([w, h]), _) => w.hypot(h) / 2.0,
-            (None, Some(d)) => shape::parse(d)
-                .ok()
-                .map_or(0.5, |s| shape::flatten(&s[0]).iter().map(|q| q[0].hypot(q[1])).fold(0.0, f64::max)),
-            _ => 0.5,
-        };
-        for i in 0..2 {
-            lo[i] = lo[i].min(p.position[i] - r);
-            hi[i] = hi[i].max(p.position[i] + r);
-        }
-    }
-    let (l, h) = ([lo[0] - margin, lo[1] - margin], [hi[0] + margin, hi[1] + margin]);
-    shape::polygon(&[l, [h[0], l[1]], h, [l[0], h[1]]], &[])
 }
 
 /// What kind of part a footprint is, from its library name, then its reference's letters.

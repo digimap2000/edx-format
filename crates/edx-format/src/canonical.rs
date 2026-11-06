@@ -271,9 +271,11 @@ fn design(d: &mut Design) {
     }
     if let Some(ps) = &mut d.packages {
         for p in ps.iter_mut() {
-            shapes(&mut p.courtyard.top);
-            if let Some(bottom) = &mut p.courtyard.bottom {
-                shapes(bottom);
+            if let Some(courtyard) = &mut p.courtyard {
+                shapes(&mut courtyard.top);
+                if let Some(bottom) = &mut courtyard.bottom {
+                    shapes(bottom);
+                }
             }
             if let Some(body) = &mut p.body {
                 shapes(&mut body.outline);

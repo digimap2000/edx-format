@@ -546,9 +546,11 @@ impl<'a> Checker<'a> {
         }
         for (i, p) in d.packages.iter().flatten().enumerate() {
             let at = format!("/design/packages/{i}");
-            self.shapes(&p.courtyard.top, &format!("{at}/courtyard/top"));
-            if let Some(bottom) = &p.courtyard.bottom {
-                self.shapes(bottom, &format!("{at}/courtyard/bottom"));
+            if let Some(courtyard) = &p.courtyard {
+                self.shapes(&courtyard.top, &format!("{at}/courtyard/top"));
+                if let Some(bottom) = &courtyard.bottom {
+                    self.shapes(bottom, &format!("{at}/courtyard/bottom"));
+                }
             }
             if let Some(body) = &p.body {
                 self.shapes(&body.outline, &format!("{at}/body/outline"));

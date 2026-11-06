@@ -295,8 +295,14 @@ A package is footprint geometry, referenced by its `id` and independent of any E
     - `drill` (REQUIRED for `th` and `npth`): `{ "diameter" }` for a round hole or `{ "slot": [width, height] }`.
     - `zone_connection` (OPTIONAL, overrides the pad's net class): `{ "mode": "solid" | "thermal" | "none",
       "spoke_width"?, "gap"? }`.
-- `courtyard` (REQUIRED): `{ "top": shapes, "bottom"?: shapes }`, on the package's own side, with the other side
-  OPTIONAL.
+- `courtyard` (OPTIONAL): `{ "top": shapes, "bottom"?: shapes }`, on the package's own side, with the other side
+  OPTIONAL. A writer gives a courtyard only when its source has one, and does not invent one.
+
+  A package with no courtyard has a **nominal courtyard**: the smallest rectangle, with sides parallel to the
+  package's axes, that holds the copper of all its pads. It stands in for the courtyard on the package's own side
+  wherever a courtyard is used: placement, collisions, a block's courtyard (section 7) and a report's `overlaps`
+  (section 11.2). It is never written into the document. Rules MAY impose a larger area, such as a margin round the
+  pads.
 - `body` (OPTIONAL): `{ "outline": shapes, "height" }`, for 3D and keep-away checks.
 
 ### 5.3 Parts
@@ -394,7 +400,8 @@ body: it moves and turns as one, and does not flip in version 1.0.
 
 - The design side requests a block with a `block` constraint (section 9.2). A layout engine fulfils the request and
   reports the block in its layout (section 11.1). An engine MAY also form blocks of its own.
-- A block's **courtyard** is the union of its members' courtyards and its own regions.
+- A block's **courtyard** is the union of its members' courtyards (nominal ones where a package has none,
+  section 5.2) and its own regions.
 - A block's **pins** are the pads whose nets leave the block.
 - Constraints between a block's members still apply and are re-measured in every report.
 - Allowed turns are given by an `orientation` constraint on the block.
@@ -702,7 +709,8 @@ A document in canonical form:
 - **Members** are in the order the schema lists them, with `extensions` and then `extras` last. Members of objects
   keyed by name (`rules.classes`, `rules.relations`, a class's `layers`, `attributes`) are in name order.
 - **Defaults** are left out: `rotation` 0, `locked` false, `cost` 1, a pour's solid `fill`, a hatch's `angle` 0,
-  and `hard` when it equals its default (section 9.1). Empty optional arrays and objects are left out.
+  and `hard` when it equals its default (section 9.1). Empty optional arrays and objects are left out. A package
+  with no courtyard stays without one: its nominal courtyard (section 5.2) is not written.
 - **Sorted lists.** Lists whose order has no meaning are sorted:
     - records by identity (section 3.1), except the stack-up, whose order is top to bottom: packages, parts, nets,
       regions, pours, relations, constraints; and likewise placed parts by `ref`, pads in a package by `number`,

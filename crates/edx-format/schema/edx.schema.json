@@ -618,7 +618,7 @@
           "minItems": 1
         },
         "courtyard": {
-          "description": "Courtyard on the package's own side; the other side optional.",
+          "description": "Courtyard on the package's own side; the other side optional. Without one, the nominal courtyard is the smallest rectangle parallel to the package's axes that holds its pads (section 5.2).",
           "type": "object",
           "properties": {
             "top": {
@@ -672,8 +672,7 @@
       "required": [
         "id",
         "class",
-        "pads",
-        "courtyard"
+        "pads"
       ]
     },
     "placement": {

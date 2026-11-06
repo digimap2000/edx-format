@@ -62,7 +62,7 @@ fn a_two_layer_board_keeps_its_geometry() {
     let cap = design.package_of("C1").unwrap();
     assert_eq!(cap.pads[0].position, [-0.8, 0.0]);
     assert_eq!(cap.pads[1].shape, PadShape::Polygon);
-    assert_eq!(cap.courtyard.top, ["M -1.5 -0.75 L 1.5 -0.75 L 1.5 0.75 L -1.5 0.75 Z"]);
+    assert_eq!(cap.courtyard.as_ref().unwrap().top, ["M -1.5 -0.75 L 1.5 -0.75 L 1.5 0.75 L -1.5 0.75 Z"]);
     let header = design.package_of("J1").unwrap();
     assert!(matches!(header.pads[2].drill, Some(Drill::Slot { slot: [1.0, 1.5], .. })));
     assert_eq!(header.class, "connector");
@@ -183,6 +183,43 @@ fn a_part_whose_courtyard_reaches_the_edge_is_fixed() {
     let board = data("two-layer.kicad_pcb").replacen("(at 14 6)", "(at 14 1.25)", 1);
     let doc = convert(&board, None, &Options::default()).unwrap().document;
     assert!(matches!(doc.design.unwrap().part("R2").unwrap().placement, Placement::Fixed { .. }));
+}
+
+/// The two-layer board with R2's courtyard taken away.
+fn without_r2_courtyard() -> String {
+    let board = data("two-layer.kicad_pcb");
+    let r2 = "(fp_text value \"1k\" (at 0 1.4) (layer \"F.Fab\"))\n";
+    let courtyard = "    (fp_rect (start -1.5 -0.75) (end 1.5 0.75) (layer \"F.CrtYd\") (width 0.05) (fill none))\n";
+    let stripped = board.replacen(&format!("{r2}{courtyard}"), r2, 1);
+    assert_ne!(stripped, board);
+    stripped
+}
+
+#[test]
+fn a_footprint_with_no_courtyard_is_converted_without_one() {
+    let c = convert(&without_r2_courtyard(), None, &Options::default()).unwrap();
+    let text = edx_format::to_string(&c.document);
+    let checked = edx_format::check(text.as_bytes());
+    assert!(checked.diagnostics.is_empty(), "{:#?}", checked.diagnostics);
+    let doc = checked.document.unwrap();
+    let design = doc.design.as_ref().unwrap();
+    assert!(design.package_of("R2").unwrap().courtyard.is_none());
+    assert!(design.package_of("R1").unwrap().courtyard.is_some());
+    assert!(c.notes.iter().any(|n| n.contains("converted without one")), "{:?}", c.notes);
+    // Far from the edge, it stays free.
+    assert!(matches!(design.part("R2").unwrap().placement, Placement::Free { .. }));
+}
+
+#[test]
+fn a_part_with_no_courtyard_is_at_the_edge_by_its_pads() {
+    // R2's pads reach 0.475 mm either side of its centre: at 1.25 mm from the top edge they come within 1 mm.
+    let board = without_r2_courtyard().replacen("(at 14 6)", "(at 14 1.25)", 1);
+    let doc = convert(&board, None, &Options::default()).unwrap().document;
+    assert!(matches!(doc.design.unwrap().part("R2").unwrap().placement, Placement::Fixed { .. }));
+    // At 1.6 mm its pads are 1.125 mm from the edge: no longer at it (the invented courtyard was).
+    let board = without_r2_courtyard().replacen("(at 14 6)", "(at 14 1.6)", 1);
+    let doc = convert(&board, None, &Options::default()).unwrap().document;
+    assert!(matches!(doc.design.unwrap().part("R2").unwrap().placement, Placement::Free { .. }));
 }
 
 #[test]

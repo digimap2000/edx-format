@@ -1,0 +1,19 @@
+[package]
+name = "edx-kicad"
+description = "Converts KiCad boards (.kicad_pcb, KiCad 6 and later) to EDX, the Electronics Design eXchange format"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+keywords = ["pcb", "eda", "kicad", "electronics", "exchange"]
+categories = ["parser-implementations", "encoding"]
+readme = "README.md"
+
+[lib]
+name = "edx_kicad"
+
+[dependencies]
+edx-format = { path = "../edx-format" }
+geo = "0.33.1"
+serde_json = { workspace = true }

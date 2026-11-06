@@ -180,6 +180,7 @@ name = "edx-cli"
 version = "0.1.0"
 dependencies = [
  "edx-format",
+ "edx-kicad",
  "serde",
  "serde_json",
 ]
@@ -210,6 +211,15 @@ version = "0.1.0"
 dependencies = [
  "edx-format",
  "pyo3",
+ "serde_json",
+]
+
+[[package]]
+name = "edx-kicad"
+version = "0.1.0"
+dependencies = [
+ "edx-format",
+ "geo",
  "serde_json",
 ]
 

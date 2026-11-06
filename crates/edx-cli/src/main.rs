@@ -20,6 +20,13 @@ Usage:
   edx schema                               print the JSON Schema this tool checks against
   edx explain CODE                         describe a diagnostic code, such as EDX-E2001
   edx codes                                list every diagnostic code
+  edx from-kicad [-o OUT] [--project PRO] [--fixed edge|locked|all|none] [--no-layout] BOARD
+                                           convert a KiCad 6+ board (.kicad_pcb) to EDX; the
+                                           project file beside it gives the net classes
+
+from-kicad fixes the parts the author locked, mounting holes and parts at the board's edge
+(--fixed edge), and writes the author's placement and copper as `layout` unless --no-layout.
+What it left out or approximated goes to standard error.
 
 FILE may be - for standard input. With --format json, check and merge print one JSON
 object per run: {\"documents\": [{\"file\", \"ok\", \"diagnostics\"}]}, and merge adds
@@ -54,6 +61,8 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
     let mut format = Format::Text;
     let mut output = None;
     let mut files = Vec::new();
+    let mut project = None;
+    let mut kicad = edx_kicad::Options::default();
     let mut it = rest.iter();
     while let Some(arg) = it.next() {
         match arg.as_str() {
@@ -65,6 +74,17 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
                 }
             }
             "-o" | "--output" => output = Some(it.next().ok_or("-o needs a file name")?.clone()),
+            "--project" => project = Some(it.next().ok_or("--project needs a file name")?.clone()),
+            "--no-layout" => kicad.layout = false,
+            "--fixed" => {
+                kicad.fixed = match it.next().map(String::as_str) {
+                    Some("edge") => edx_kicad::Fixed::Edge,
+                    Some("locked") => edx_kicad::Fixed::Locked,
+                    Some("all") => edx_kicad::Fixed::All,
+                    Some("none") => edx_kicad::Fixed::None,
+                    other => return Err(format!("--fixed is edge, locked, all or none, not {other:?}")),
+                }
+            }
             "-h" | "--help" => {
                 println!("{USAGE}");
                 return Ok(ExitCode::SUCCESS);
@@ -78,6 +98,7 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
         "fmt" if files.len() == 1 => fmt(&files[0], output.as_deref()),
         "hash" if files.len() == 1 => hash(&files[0], format),
         "constraints" if files.len() == 1 => constraints(&files[0], format),
+        "from-kicad" if files.len() == 1 => from_kicad(&files[0], project.as_deref(), &kicad, output.as_deref()),
         "schema" => {
             print!("{}", edx_format::SCHEMA);
             Ok(ExitCode::SUCCESS)
@@ -93,7 +114,9 @@ fn run(args: &[String]) -> Result<ExitCode, String> {
             println!("{USAGE}");
             Ok(ExitCode::SUCCESS)
         }
-        "check" | "merge" | "explain" | "fmt" | "hash" => Err(format!("wrong number of arguments for `{command}`")),
+        "check" | "merge" | "explain" | "fmt" | "hash" | "from-kicad" => {
+            Err(format!("wrong number of arguments for `{command}`"))
+        }
         _ => Err(format!("unknown command `{command}`")),
     }
 }
@@ -269,4 +292,41 @@ fn explain(code: &str) -> Result<ExitCode, String> {
         }
         None => Err(format!("no code {code}")),
     }
+}
+
+fn from_kicad(
+    board: &str,
+    project: Option<&str>,
+    options: &edx_kicad::Options,
+    output: Option<&str>,
+) -> Result<ExitCode, String> {
+    let text = String::from_utf8(read(board)?).map_err(|_| format!("{board}: not UTF-8"))?;
+    // The project file beside the board, unless one is named.
+    let beside = std::path::Path::new(board).with_extension("kicad_pro");
+    let project = match project {
+        Some(p) => Some(std::fs::read_to_string(p).map_err(|e| format!("{p}: {e}"))?),
+        None if board != "-" => std::fs::read_to_string(&beside).ok(),
+        None => None,
+    };
+    let converted = edx_kicad::convert(&text, project.as_deref(), options).map_err(|e| format!("{board}: {e}"))?;
+    let written = edx_format::to_string(&converted.document);
+    for note in &converted.notes {
+        eprintln!("{board}: note: {note}");
+    }
+    // What was written is checked as any reader would check it.
+    let checked = edx_format::check(written.as_bytes());
+    let label = output.unwrap_or("(output)");
+    for d in &checked.diagnostics {
+        eprintln!("{label}: {d}");
+    }
+    if let Some(doc) = &checked.document {
+        for d in edx_format::incomplete(doc) {
+            eprintln!("{label}: {d}");
+        }
+    }
+    match output {
+        Some(path) => std::fs::write(path, &written).map_err(|e| format!("{path}: {e}"))?,
+        None => std::io::stdout().write_all(written.as_bytes()).map_err(|e| e.to_string())?,
+    }
+    Ok(status(checked.is_ok()))
 }

@@ -584,7 +584,8 @@ impl<'a> Reader<'a> {
                     Some(chamfered(w, h, chamfer * w.min(h), corners.unwrap()))
                 } else {
                     out.shape = PadShape::Roundrect;
-                    out.corner_radius = Some(pad.number("roundrect_rratio").unwrap_or(0.25).min(0.5) * w.min(h));
+                    out.corner_radius =
+                        Some(shape::round_nm(pad.number("roundrect_rratio").unwrap_or(0.25).min(0.5) * w.min(h)));
                     None
                 }
             }
@@ -790,9 +791,11 @@ impl<'a> Reader<'a> {
                         _ => {}
                     }
                 }
-                let thickness: f64 = subs.iter().map(|s| s.0).sum();
+                // Sums and averages are rounded as EDX keeps numbers, so float noise stays out.
+                let thickness = shape::round_nm(subs.iter().map(|s| s.0).sum());
                 let weighted = |f: fn(&(f64, Option<f64>, Option<f64>, Option<String>)) -> Option<f64>| {
-                    subs.iter().map(|s| f(s).map(|v| v * s.0)).sum::<Option<f64>>().map(|v| v / thickness)
+                    let sum = subs.iter().map(|s| f(s).map(|v| v * s.0)).sum::<Option<f64>>();
+                    sum.map(|v| shape::round_nm(v / thickness))
                 };
                 let (Some(er), true) = (weighted(|s| s.1), thickness > 0.0) else { continue };
                 if er <= 1.0 {

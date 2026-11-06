@@ -32,8 +32,10 @@ pub struct Project {
 pub const KICAD_DEFAULT: Class =
     Class { clearance: Some(0.2), track_width: Some(0.25), via_diameter: Some(0.6), via_drill: Some(0.3) };
 
+/// A length the project gives, rounded to the nanometre as EDX keeps lengths: KiCad writes some
+/// converted from mils with float noise (`0.15239999999999998`).
 fn positive(v: Option<&Value>) -> Option<f64> {
-    v.and_then(Value::as_f64).filter(|v| *v > 0.0)
+    v.and_then(Value::as_f64).filter(|v| *v > 0.0).map(edx_format::shape::round_nm)
 }
 
 impl Project {
@@ -126,7 +128,7 @@ mod tests {
     #[test]
     fn a_net_takes_its_assignment_then_a_pattern_then_default() {
         let p = Project::read(
-            r#"{ "board": { "design_settings": { "rules": { "min_track_width": 0.15, "min_copper_edge_clearance": 0 } } },
+            r#"{ "board": { "design_settings": { "rules": { "min_track_width": 0.15239999999999998, "min_copper_edge_clearance": 0 } } },
                  "net_settings": {
                    "classes": [ { "name": "Default", "clearance": 0.2, "track_width": 0.2, "via_diameter": 0.6, "via_drill": 0.3 },
                                 { "name": "Power", "clearance": 0.2, "track_width": 0.5, "via_diameter": 0.8, "via_drill": 0.4 } ],
@@ -138,6 +140,6 @@ mod tests {
             (p.class_of("+5V"), p.class_of("+1V8_LDO"), p.class_of("VBUS"), p.class_of("SDA")),
             ("Power", "Default", "Power", "Default")
         );
-        assert_eq!((p.min_track_width, p.copper_to_edge), (Some(0.15), None));
+        assert_eq!((p.min_track_width, p.copper_to_edge), (Some(0.1524), None));
     }
 }

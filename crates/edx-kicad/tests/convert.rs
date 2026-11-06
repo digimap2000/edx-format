@@ -11,6 +11,10 @@ fn data(name: &str) -> String {
 fn converted(board: &str, project: Option<&str>, options: &Options) -> (Document, Vec<String>) {
     let c = convert(&data(board), project.map(data).as_deref(), options).unwrap();
     let text = edx_format::to_string(&c.document);
+    // Every number is rounded as EDX keeps them: no float noise such as 0.15239999999999998.
+    for number in text.split(|c: char| !(c.is_ascii_digit() || c == '.')).filter(|t| t.contains('.')) {
+        assert!(number.split('.').nth(1).unwrap().len() <= 6, "{number} is not rounded");
+    }
     let checked = edx_format::check(text.as_bytes());
     assert!(checked.diagnostics.is_empty(), "{:#?}", checked.diagnostics);
     let document = checked.document.unwrap();

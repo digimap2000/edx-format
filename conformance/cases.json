@@ -181,6 +181,16 @@
       }
     },
     {
+      "name": "no-courtyard",
+      "clause": "5.2",
+      "description": "A package with no courtyard: its nominal courtyard is the rectangle round its pads.",
+      "input": "valid/no-courtyard.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
       "name": "netless-pour",
       "clause": "5.6",
       "description": "Pours of no net: hatched thieving on a signal layer, an island of no net in a plane, and an engine's thieving in the layout; a pour of a net written with solid fill.",

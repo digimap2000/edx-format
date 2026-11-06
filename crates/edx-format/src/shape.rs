@@ -181,19 +181,19 @@ pub fn flatten(sub: &Subpath) -> Vec<[f64; 2]> {
     points
 }
 
-/// Appends points along a circular arc from `p0` to `p1` (SVG 1.1, appendix F.6.5), ending at `p1`.
-fn arc_points(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool, out: &mut Vec<[f64; 2]>) {
+/// A circular arc from `p0` to `p1` (SVG 1.1, appendix F.6.5): its centre, radius, starting angle and
+/// the angle it sweeps (positive when `sweep`). None when it is a straight step.
+fn arc(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool) -> Option<([f64; 2], f64, f64, f64)> {
     let (hx, hy) = ((p0[0] - p1[0]) / 2.0, (p0[1] - p1[1]) / 2.0);
     if r == 0.0 || (hx == 0.0 && hy == 0.0) {
-        out.push(p1);
-        return;
+        return None;
     }
     let d2 = hx * hx + hy * hy;
     let r = r.max(d2.sqrt());
     let sign = if large == sweep { -1.0 } else { 1.0 };
     let coef = sign * ((r * r - d2) / d2).max(0.0).sqrt();
     let (ccx, ccy) = (coef * hy, -coef * hx);
-    let (cx, cy) = (ccx + (p0[0] + p1[0]) / 2.0, ccy + (p0[1] + p1[1]) / 2.0);
+    let centre = [ccx + (p0[0] + p1[0]) / 2.0, ccy + (p0[1] + p1[1]) / 2.0];
     let theta = |ux: f64, uy: f64| uy.atan2(ux);
     let t1 = theta((hx - ccx) / r, (hy - ccy) / r);
     let mut dt = theta((-hx - ccx) / r, (-hy - ccy) / r) - t1;
@@ -202,6 +202,15 @@ fn arc_points(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool, out:
     } else if !sweep && dt > 0.0 {
         dt -= TAU;
     }
+    Some((centre, r, t1, dt))
+}
+
+/// Appends points along a circular arc from `p0` to `p1`, ending at `p1`.
+fn arc_points(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool, out: &mut Vec<[f64; 2]>) {
+    let Some(([cx, cy], r, t1, dt)) = arc(p0, p1, r, large, sweep) else {
+        out.push(p1);
+        return;
+    };
     let step = 2.0 * (1.0 - FLATTEN_TOLERANCE / r).clamp(-1.0, 1.0).acos();
     let n = if step > 0.0 { (dt.abs() / step).ceil().max(1.0) as usize } else { 1 };
     for k in 1..n {
@@ -209,6 +218,40 @@ fn arc_points(p0: [f64; 2], p1: [f64; 2], r: f64, large: bool, sweep: bool, out:
         out.push([cx + r * t.cos(), cy + r * t.sin()]);
     }
     out.push(p1);
+}
+
+/// The smallest axis-parallel rectangle holding a subpath, `[least, greatest]`: exact for arcs, which
+/// count their extreme points as well as their ends.
+pub fn bounds(sub: &Subpath) -> [[f64; 2]; 2] {
+    let mut b = [sub.start, sub.start];
+    let mut take = |p: [f64; 2]| {
+        for i in 0..2 {
+            b[0][i] = b[0][i].min(p[i]);
+            b[1][i] = b[1][i].max(p[i]);
+        }
+    };
+    let mut current = sub.start;
+    for segment in &sub.segments {
+        let to = match *segment {
+            Segment::Line { to } => to,
+            Segment::Arc { rx, large, sweep, to, .. } => {
+                if let Some(([cx, cy], r, t1, dt)) = arc(current, to, rx.abs(), large, sweep) {
+                    // The quarter-turn angles the arc passes: its points furthest along each axis.
+                    for (k, [dx, dy]) in [[r, 0.0], [0.0, r], [-r, 0.0], [0.0, -r]].into_iter().enumerate() {
+                        let a = k as f64 * TAU / 4.0;
+                        let along = if dt > 0.0 { (a - t1).rem_euclid(TAU) } else { (t1 - a).rem_euclid(TAU) };
+                        if along <= dt.abs() {
+                            take([cx + dx, cy + dy]);
+                        }
+                    }
+                }
+                to
+            }
+        };
+        take(to);
+        current = to;
+    }
+    b
 }
 
 /// Twice the signed area of a ring by the shoelace formula. Seen from the top, with y downwards,
@@ -301,6 +344,18 @@ pub fn overlap(a: &MultiPolygon<f64>, b: &MultiPolygon<f64>) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn bounds_count_the_extreme_points_an_arc_passes() {
+        // A quarter arc from the top of a unit circle round to its right: no other extreme point.
+        let quarter = &parse("M 0 -1 A 1 1 0 0 1 1 0 L 0 0 Z").unwrap()[0];
+        assert_eq!(bounds(quarter), [[0.0, -1.0], [1.0, 0.0]]);
+        // The other way round, the long way: it passes the left and the bottom as well.
+        let three = &parse("M 0 -1 A 1 1 0 1 0 1 0 L 0 0 Z").unwrap()[0];
+        let [lo, hi] = bounds(three);
+        assert!((lo[0] + 1.0).abs() < 1e-12 && (lo[1] + 1.0).abs() < 1e-12);
+        assert!((hi[0] - 1.0).abs() < 1e-12 && (hi[1] - 1.0).abs() < 1e-12);
+    }
 
     #[test]
     fn parses_the_subset() {

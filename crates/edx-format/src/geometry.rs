@@ -1,7 +1,7 @@
 //! Placement geometry (specification, sections 2.3 and 10): where a package's pads, courtyards and
 //! owned regions land on the board, and back.
 
-use crate::model::{Pad, PadLayers, PadShape, Point, Side};
+use crate::model::{Package, Pad, PadLayers, PadShape, Point, Shape, Side};
 use crate::shape::{self, Segment, Subpath};
 
 /// Where a package stands on the board: its origin's position, its angle and its side.
@@ -142,6 +142,34 @@ pub fn pad_shape(pad: &Pad) -> Result<Vec<Subpath>, String> {
     Ok(Transform::new(pad.position, pad.rotation, Side::Top).apply_subpaths(&local))
 }
 
+/// A package's courtyard on its own side, in its own coordinates (section 5.2): the one it gives, or,
+/// when it gives none, its nominal courtyard, the smallest rectangle parallel to its axes that holds
+/// its pads' copper.
+pub fn courtyard(package: &Package) -> Vec<Shape> {
+    if let Some(c) = &package.courtyard {
+        return c.top.clone();
+    }
+    let (mut lo, mut hi) = ([f64::MAX; 2], [f64::MIN; 2]);
+    for pad in &package.pads {
+        // A pad whose shape cannot be made (the document is invalid) counts by its position.
+        let parts = match pad_shape(pad) {
+            Ok(subs) => subs.iter().map(shape::bounds).collect(),
+            Err(_) => vec![[pad.position, pad.position]],
+        };
+        for [a, b] in parts {
+            for i in 0..2 {
+                lo[i] = lo[i].min(a[i]);
+                hi[i] = hi[i].max(b[i]);
+            }
+        }
+    }
+    if package.pads.is_empty() {
+        return Vec::new();
+    }
+    let [l, h] = [lo.map(shape::round_nm), hi.map(shape::round_nm)];
+    vec![shape::polygon(&[l, [l[0], h[1]], h, [h[0], l[1]]], &[])]
+}
+
 /// A rectangle centred on the origin with corners rounded to `r` (clamped to half its smaller side):
 /// a rectangle when `r` is 0, a stadium or circle when it is half the smaller side.
 fn rounded_rect([w, h]: [f64; 2], r: f64) -> Vec<Subpath> {
@@ -252,5 +280,49 @@ mod tests {
         let ys: Vec<f64> = ring.iter().map(|p| p[1]).collect();
         let span = |v: &[f64]| v.iter().cloned().fold(f64::MIN, f64::max) - v.iter().cloned().fold(f64::MAX, f64::min);
         assert!((span(&xs) - 1.0).abs() < 1e-9 && (span(&ys) - 2.0).abs() < 1e-9);
+    }
+
+    fn package(pads: Vec<Pad>) -> Package {
+        Package { id: "P".into(), class: "other".into(), pads, courtyard: None, body: None, ext: Default::default() }
+    }
+
+    #[test]
+    fn a_given_courtyard_is_the_courtyard() {
+        let mut p = package(vec![pad(PadShape::Rect, [2.0, 1.0])]);
+        p.courtyard = Some(crate::model::Courtyard {
+            top: vec!["M -3 -3 V 3 H 3 V -3 Z".into()],
+            bottom: None,
+            ext: Default::default(),
+        });
+        assert_eq!(courtyard(&p), ["M -3 -3 V 3 H 3 V -3 Z"]);
+    }
+
+    #[test]
+    fn the_nominal_courtyard_is_the_rectangle_round_the_pads() {
+        let bounds = |p: &Package| {
+            let c = courtyard(p);
+            assert_eq!(c.len(), 1);
+            assert!(shape::check(&c[0]).is_empty(), "{}", c[0]);
+            let b = shape::bounds(&shape::parse(&c[0]).unwrap()[0]);
+            assert_eq!(shape::flatten(&shape::parse(&c[0]).unwrap()[0]).len(), 4);
+            b
+        };
+        // Two rect pads, one turned a quarter about its position: 2 by 1 becomes 1 by 2.
+        let mut a = pad(PadShape::Rect, [2.0, 1.0]);
+        a.position = [-2.0, 0.0];
+        a.rotation = 0.0;
+        let b = pad(PadShape::Rect, [2.0, 1.0]);
+        assert_eq!(bounds(&package(vec![a, b])), [[-3.0, -0.5], [1.5, 3.0]]);
+        // A circle: its arcs count by their extreme points, not their ends alone.
+        let c = pad(PadShape::Circle, [1.0, 1.0]);
+        assert_eq!(bounds(&package(vec![c])), [[0.5, 1.5], [1.5, 2.5]]);
+        // A polygon pad turned by 45 degrees: a diamond reaching sqrt(2) / 2 each way.
+        let mut d = pad(PadShape::Polygon, [0.0, 0.0]);
+        d.size = None;
+        d.outline = Some("M -0.5 -0.5 H 0.5 V 0.5 H -0.5 Z".into());
+        d.position = [0.0, 0.0];
+        d.rotation = 45.0;
+        let h = shape::round_nm(0.5f64.sqrt());
+        assert_eq!(bounds(&package(vec![d])), [[-h, -h], [h, h]]);
     }
 }

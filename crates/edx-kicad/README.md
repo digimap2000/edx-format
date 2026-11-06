@@ -30,7 +30,7 @@ for note in converted.notes {
 | A footprint | a package (pads and courtyard as seen from the top) and a part; footprints of the same geometry share a package |
 | Pads: rect, circle, oval, roundrect | the same shapes |
 | Pads: trapezoid, chamfered, custom | `polygon` (a chamfered pad's other corners are square; a custom pad is its anchor and filled primitives joined) |
-| Courtyard (`F.CrtYd` or `B.CrtYd`, the part's own side) | `courtyard.top`; a footprint with none gets a rectangle 0.25 mm round its pads |
+| Courtyard (`F.CrtYd` or `B.CrtYd`, the part's own side) | `courtyard.top`; a footprint with none is converted without one (readers then take the nominal courtyard round its pads) |
 | Net classes and their nets (`.kicad_pro`) | `rules.classes`; `Default` is `default` |
 | Minimum track width, copper to edge, hole to hole | `TrackWidth.min`, `rules.board` |
 | Copper zones | `design.pours`, ranked by KiCad's priority, then by the order they are written in |

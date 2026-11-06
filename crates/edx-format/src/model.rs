@@ -166,7 +166,9 @@ pub struct Package {
     /// Registry: `ic`, `passive`, `connector`, `mechanical`, `other`, or an extension's name.
     pub class: String,
     pub pads: Vec<Pad>,
-    pub courtyard: Courtyard,
+    /// Left out when the source gives none; [`crate::geometry::courtyard`] then gives the nominal one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub courtyard: Option<Courtyard>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<Body>,
     #[serde(flatten)]

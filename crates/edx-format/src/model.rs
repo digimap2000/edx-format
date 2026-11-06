@@ -842,7 +842,7 @@ pub struct AssessmentResult {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub value: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub limit: Option<f64>,
+    pub limit: Option<Limit>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub target: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -864,6 +864,16 @@ pub struct AssessmentResult {
     pub method: Option<String>,
     #[serde(flatten)]
     pub ext: Ext,
+}
+
+/// A test's limit: one-sided, or a range of acceptable values.
+#[derive(Clone, Copy, Debug, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum Limit {
+    /// The value the test fails beyond, in the direction the test's `better` gives.
+    At(f64),
+    /// `[low, high]`: the test passes from `low` to `high`, both included.
+    Range([f64; 2]),
 }
 
 /// Whether one item of a test is within the test's limit.
@@ -899,4 +909,18 @@ pub struct Shortfall {
     pub stopped_by: Vec<String>,
     #[serde(flatten)]
     pub ext: Ext,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_limit_reads_and_writes_as_a_number_or_a_pair() {
+        for (json, limit) in [("2.5", Limit::At(2.5)), ("[15.5,16.5]", Limit::Range([15.5, 16.5]))] {
+            assert_eq!(serde_json::from_str::<Limit>(json).unwrap(), limit);
+            assert_eq!(serde_json::to_string(&limit).unwrap(), json);
+        }
+        assert!(serde_json::from_str::<Limit>("[1,2,3]").is_err());
+    }
 }

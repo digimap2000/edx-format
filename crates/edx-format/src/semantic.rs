@@ -438,6 +438,7 @@ impl<'a> Checker<'a> {
                             format!("another assessment result is already `{}`", r.id),
                         );
                     }
+                    self.limit(r, i);
                     let wheres = r.location.iter().map(|w| (w, format!("/report/assessment/results/{i}/where")));
                     let items = r.items.iter().enumerate().filter_map(|(k, it)| {
                         it.location.as_ref().map(|w| (w, format!("/report/assessment/results/{i}/items/{k}/where")))
@@ -466,6 +467,36 @@ impl<'a> Checker<'a> {
                     }
                 }
             }
+        }
+    }
+
+    /// An assessment result's limit must be one the result can be judged against (section 11.3).
+    fn limit(&mut self, r: &AssessmentResult, i: usize) {
+        let at = format!("/report/assessment/results/{i}/limit");
+        match r.limit {
+            Some(Limit::Range([low, high])) => {
+                if low > high {
+                    self.push(
+                        "EDX-E4003",
+                        at,
+                        format!("the range runs from {low} down to {high}; write it low to high"),
+                    );
+                } else if let Some(t) = r.target.filter(|t| *t < low || *t > high) {
+                    self.push(
+                        "EDX-E4003",
+                        format!("/report/assessment/results/{i}/target"),
+                        format!("the target {t} is outside the range {low} to {high}"),
+                    );
+                }
+            }
+            Some(Limit::At(_)) if r.better == Some(Better::Neither) => {
+                self.push(
+                    "EDX-E4003",
+                    at,
+                    "the test is better neither way, so its limit must be a range `[low, high]`",
+                );
+            }
+            _ => {}
         }
     }
 

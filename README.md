@@ -20,6 +20,7 @@ one. Areas are written as SVG path data.
 | `conformance/` | Language-neutral test cases and example documents |
 | `crates/edx-format/` | Reference library in Rust: check, read, merge and write EDX documents |
 | `crates/edx-cli/` | `edx`, the command-line checker and merger |
+| `crates/edx-kicad/` | Converts KiCad 6+ boards to EDX (`edx from-kicad`), with no KiCad running |
 | `bindings/python/` | The Python package `edx-format`, built on the Rust library |
 | `bindings/js/` | The JavaScript package `edx-format`, the Rust library compiled to WebAssembly |
 | `site/` | The GitHub Pages site that serves the schema at its `$id` |
@@ -53,7 +54,11 @@ edx fmt board.edx.json                   # canonical form (section 13 of the spe
 edx hash board.edx.json                  # sha256 of the design, rules and constraints
 edx constraints board.edx.json           # the constraints in force, derived and authored
 edx explain EDX-E3005
+edx from-kicad board.kicad_pcb -o board.edx.json   # a KiCad 6+ board as EDX
 ```
+
+Converting from KiCad is one of the free utilities offered beside the specification; see
+[`crates/edx-kicad`](crates/edx-kicad/README.md) for what goes where.
 
 To depend on it from another Rust project before it is on crates.io:
 

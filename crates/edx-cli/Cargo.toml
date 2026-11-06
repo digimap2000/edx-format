@@ -15,5 +15,6 @@ path = "src/main.rs"
 
 [dependencies]
 edx-format = { path = "../edx-format", features = ["preserve_order"] }
+edx-kicad = { path = "../edx-kicad" }
 serde = { workspace = true }
 serde_json = { workspace = true }

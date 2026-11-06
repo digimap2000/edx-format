@@ -1,0 +1,181 @@
+(kicad_pcb
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(general
+		(thickness 1.6)
+	)
+	(paper "A4")
+	(layers
+		(0 "F.Cu" signal)
+		(4 "In1.Cu" power)
+		(6 "In2.Cu" signal)
+		(2 "B.Cu" signal)
+		(25 "Edge.Cuts" user)
+		(31 "F.CrtYd" user "F.Courtyard")
+		(29 "B.CrtYd" user "B.Courtyard")
+	)
+	(setup
+		(pad_to_mask_clearance 0)
+	)
+	(footprint "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+		(layer "F.Cu")
+		(at 20 15 45)
+		(property "Reference" "U1"
+			(at 0 -3.4 45)
+			(layer "F.SilkS")
+		)
+		(property "Value" "LM358"
+			(at 0 3.4 45)
+			(layer "F.Fab")
+		)
+		(attr smd)
+		(fp_poly
+			(pts
+				(xy -3.7 -2.7) (xy 3.7 -2.7) (xy 3.7 2.7) (xy -3.7 2.7)
+			)
+			(layer "F.CrtYd")
+			(fill no)
+		)
+		(pad "1" smd roundrect
+			(at -2.475 -1.905 45)
+			(size 1.95 0.6)
+			(layers "F.Cu" "F.Mask" "F.Paste")
+			(roundrect_rratio 0.25)
+			(chamfer_ratio 0.2)
+			(chamfer top_left)
+			(net "/IN")
+		)
+		(pad "4" smd roundrect
+			(at -2.475 1.905 45)
+			(size 1.95 0.6)
+			(layers "F.Cu" "F.Mask" "F.Paste")
+			(roundrect_rratio 0.25)
+			(net "GND")
+		)
+		(pad "8" smd custom
+			(at 2.475 -1.905 45)
+			(size 0.6 0.6)
+			(layers "F.Cu" "F.Mask" "F.Paste")
+			(net "+3V3")
+			(options
+				(clearance outline)
+				(anchor rect)
+			)
+			(primitives
+				(gr_poly
+					(pts
+						(xy -0.3 -0.3) (xy 1.2 -0.3) (xy 1.2 0.3) (xy -0.3 0.3)
+					)
+					(width 0)
+					(fill yes)
+				)
+			)
+		)
+	)
+	(footprint "Capacitor_SMD:C_0402_1005Metric"
+		(locked yes)
+		(layer "B.Cu")
+		(at 12 15 270)
+		(property "Reference" "C1"
+			(at 0 1.2 270)
+			(layer "B.SilkS")
+		)
+		(property "Value" "100n"
+			(at 0 -1.2 270)
+			(layer "B.Fab")
+		)
+		(fp_rect
+			(start -0.9 0.5)
+			(end 0.9 -0.5)
+			(layer "B.CrtYd")
+		)
+		(pad "1" smd roundrect
+			(at -0.48 0 270)
+			(size 0.56 0.62)
+			(layers "B.Cu" "B.Mask" "B.Paste")
+			(roundrect_rratio 0.25)
+			(net "+3V3")
+		)
+		(pad "2" smd roundrect
+			(at 0.48 0 270)
+			(size 0.56 0.62)
+			(layers "B.Cu" "B.Mask" "B.Paste")
+			(roundrect_rratio 0.25)
+			(net "GND")
+		)
+	)
+	(gr_poly
+		(pts
+			(xy 0 0) (xy 40 0) (xy 40 30)
+			(arc (start 40 30) (mid 38.535534 33.535534) (end 35 35))
+			(xy 0 35)
+		)
+		(layer "Edge.Cuts")
+		(fill no)
+	)
+	(segment
+		(start 12 14.52)
+		(end 18 15)
+		(width 0.2)
+		(layer "In2.Cu")
+		(net "+3V3")
+	)
+	(via
+		(at 20 20)
+		(size 0.6)
+		(drill 0.3)
+		(layers "F.Cu" "B.Cu")
+		(net "GND")
+	)
+	(zone
+		(net "GND")
+		(layer "In1.Cu")
+		(name "GND plane")
+		(connect_pads
+			(clearance 0.2)
+		)
+		(fill yes
+			(thermal_gap 0.3)
+			(thermal_bridge_width 0.3)
+		)
+		(polygon
+			(pts
+				(xy 0.5 0.5) (xy 39.5 0.5) (xy 39.5 34.5) (xy 0.5 34.5)
+			)
+		)
+	)
+	(zone
+		(net "+3V3")
+		(layers "F.Cu" "In2.Cu")
+		(priority 1)
+		(connect_pads yes
+			(clearance 0.2)
+		)
+		(fill yes
+			(mode hatch)
+			(hatch_thickness 0.3)
+			(hatch_gap 0.6)
+			(hatch_orientation 45)
+		)
+		(polygon
+			(pts
+				(xy 25 25) (xy 35 25) (xy 35 32) (xy 25 32)
+			)
+		)
+	)
+	(zone
+		(net "GND")
+		(layer "F.Cu")
+		(attr
+			(teardrop
+				(type padvia)
+			)
+		)
+		(polygon
+			(pts
+				(xy 19.5 19.5) (xy 20.5 19.5) (xy 20 21)
+			)
+		)
+	)
+)

@@ -44,4 +44,4 @@ take about 2 minutes.
 
 ## Merging
 
-The repo merges with merge commits: `gh pr merge --merge`.
+The repo merges by squashing: `gh pr merge --squash`. Squash is the only merge method enabled on GitHub.

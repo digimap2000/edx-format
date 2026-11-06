@@ -3268,7 +3268,20 @@
           "type": "number"
         },
         "limit": {
-          "type": "number"
+          "description": "The value the test fails beyond, in the direction `better` gives; or `[low, high]`, the range of acceptable values.",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          ]
         },
         "target": {
           "type": "number"

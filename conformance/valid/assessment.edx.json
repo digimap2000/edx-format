@@ -362,6 +362,23 @@
               "status": "fail"
             }
           ]
+        },
+        {
+          "id": "crystal-load",
+          "metric": "si.crystal_load",
+          "unit": "pF",
+          "better": "neither",
+          "value": 16.2,
+          "limit": [
+            15.5,
+            16.5
+          ],
+          "target": 16,
+          "weight": 1,
+          "margin": 0.3,
+          "desirability": 0.6,
+          "status": "pass",
+          "source": "crystal datasheet: load capacitance 16 pF"
         }
       ],
       "passes": false,

@@ -154,7 +154,7 @@
     {
       "name": "assessment",
       "clause": "11.3",
-      "description": "A report carrying an assessment: three test results, one with its source and method, items judged against their limits, a failing verdict, the grade reached and the result that stops the next level.",
+      "description": "A report carrying an assessment: four test results, one with its source and method, one judged against a range, items judged against their limits, a failing verdict, the grade reached and the result that stops the next level.",
       "input": "valid/assessment.edx.json",
       "expect": {
         "errors": [],
@@ -946,6 +946,66 @@
           {
             "code": "EDX-E2010",
             "pointer": "/report/assessment/results/2/items/0/where/nets/0"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-range-three",
+      "clause": "11.3",
+      "description": "A range limit is a pair, [low, high].",
+      "input": "invalid/E1000-assessment-range-three.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/report/assessment/results/3/limit"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-range-reversed",
+      "clause": "11.3",
+      "description": "A range limit runs from low to high.",
+      "input": "invalid/E4003-assessment-range-reversed.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E4003",
+            "pointer": "/report/assessment/results/3/limit"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-target-outside-range",
+      "clause": "11.3",
+      "description": "A test's target lies inside its range.",
+      "input": "invalid/E4003-assessment-target-outside-range.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E4003",
+            "pointer": "/report/assessment/results/3/target"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "assessment-neither-one-sided",
+      "clause": "11.3",
+      "description": "A test better neither way is judged against a range, not a one-sided limit.",
+      "input": "invalid/E4003-assessment-neither-one-sided.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E4003",
+            "pointer": "/report/assessment/results/3/limit"
           }
         ],
         "warnings": []

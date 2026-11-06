@@ -92,4 +92,5 @@ pub const CODES: &[(&str, &str)] = &[
     ("EDX-E3007", "a dielectric below the last layer, or solder mask on an inner layer"),
     ("EDX-E4001", "a relation kind with no rule, in a document that must be complete"),
     ("EDX-E4002", "two authored constraints contradict each other"),
+    ("EDX-E4003", "an assessment limit that cannot be judged: a range from high to low, a target outside its range, or a one-sided limit on a test better neither way"),
 ];

@@ -612,11 +612,15 @@ EDX carries the outcome, not the suite: a suite's form belongs to the tool that 
     - `unit`: the value's unit, such as `mm`, `mm2` or `%`; with none the value is a plain number;
     - `better`: `lower`, `higher` or `neither`: which way the value is better;
     - `value`: the measured value, absent when the test could not measure;
-    - `limit`: the value the test fails beyond, in the direction `better` gives; `target`: the value at which the
-      test is fully satisfied;
+    - `limit`: the value the test fails beyond, in the direction `better` gives; or `[low, high]`, the range of
+      acceptable values, which the value passes from `low` to `high` inclusive whichever way it is better. A test
+      that is better neither way takes a range;
+    - `target`: the value at which the test is fully satisfied, inside the range where `limit` is one;
     - `weight`: the test's weight in `index`, greater than zero;
-    - `margin`: how far the value is inside its limit, negative when outside;
-    - `desirability`: from 0 (at or beyond the limit) to 1 (at or beyond the target);
+    - `margin`: how far the value is inside its limit, negative when outside; against a range, the distance to the
+      nearer end;
+    - `desirability`: from 0 (at or beyond the limit, or at either end of a range) to 1 (at or beyond the target, or
+      at the target within a range);
     - `status`: `pass`, `fail`, `info` (measured, not judged) or `not_measurable`;
     - `items`: `{ "name", "where"?, "value"?, "note"?, "margin"?, "status"? }` for each net, pair of nets or other
       thing the test looked at, worst first. `where` names it as a result's does; `margin` and `status` (`pass` or
@@ -633,6 +637,9 @@ EDX carries the outcome, not the suite: a suite's form belongs to the tool that 
 
 Metric names are the tool's own in this version. A registry of metrics with defined methods, so that assessments
 made by different tools can be compared, is planned for a later minor version.
+
+A range MUST run from low to high, a `target` MUST lie inside its result's range, and a result whose `better` is
+`neither` MUST NOT have a one-sided `limit` (`EDX-E4003`).
 
 Every `id` in `next.stopped_by` MUST be the `id` of a result in `results`. A `where`, on a result or an item, MUST
 name parts, nets and pads that exist, and `specimen.block` a block that exists.
@@ -809,6 +816,7 @@ Initial codes:
 | `EDX-E3007` | semantics | a dielectric below the last layer, or solder mask on an inner layer |
 | `EDX-E4001` | semantics | a relation kind with no rule, in a document that must be complete |
 | `EDX-E4002` | semantics | two authored constraints contradict each other |
+| `EDX-E4003` | semantics | an assessment limit that cannot be judged: a range from high to low, a target outside its range, or a one-sided limit on a test better neither way |
 
 Block names are those given by `block` constraints (section 9.2) and by `layout.groups.blocks`.
 

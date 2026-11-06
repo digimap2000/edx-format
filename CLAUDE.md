@@ -34,6 +34,7 @@ Run what CI runs (`.github/workflows/ci.yml`). The schema and rust jobs, locally
 cargo fmt --all --check
 cargo clippy --all-targets --locked -- -D warnings
 cargo test --locked
+cargo check --workspace --locked   # plain cargo leaves out the python/js bindings; this checks them too
 cargo build --locked -p edx-cli && python3 tools/conformance.py target/debug/edx
 uv run --no-project --with jsonschema==4.26.0 python tools/schema_cases.py
 uvx check-jsonschema==0.39.0 --check-metaschema schema/1.0/edx.schema.json

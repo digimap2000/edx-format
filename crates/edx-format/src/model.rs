@@ -354,16 +354,41 @@ pub struct Region {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Pour {
     pub name: String,
-    pub net: String,
+    /// The pour's net; `None` for copper of no net, as thieving (section 5.6).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub net: Option<String>,
     pub layers: Vec<String>,
     pub outline: Vec<Shape>,
     pub priority: u32,
+    /// How the pour fills its area; `None` is solid.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fill: Option<Fill>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub connection: Option<ZoneConnection>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clearance: Option<f64>,
     #[serde(flatten)]
     pub ext: Ext,
+}
+
+/// How a pour fills its area (section 5.6).
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum Fill {
+    /// Solid copper, the default.
+    Solid {
+        #[serde(flatten)]
+        ext: Ext,
+    },
+    /// A grid of lines `width` wide with `gap` between them, at `angle` degrees and at right angles to it.
+    Hatch {
+        width: f64,
+        gap: f64,
+        #[serde(default, skip_serializing_if = "is_zero")]
+        angle: f64,
+        #[serde(flatten)]
+        ext: Ext,
+    },
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

@@ -181,6 +181,26 @@
       }
     },
     {
+      "name": "netless-pour",
+      "clause": "5.6",
+      "description": "Pours of no net: hatched thieving on a signal layer, an island of no net in a plane, and an engine's thieving in the layout; a pour of a net written with solid fill.",
+      "input": "valid/netless-pour.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
+      "name": "netless-pours-overlap",
+      "clause": "5.6",
+      "description": "Two pours of no net overlap at the same priority: no net counts as one net, so they do not conflict.",
+      "input": "valid/netless-pours-overlap.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
       "name": "not-json",
       "clause": "14.1",
       "description": "Truncated JSON.",
@@ -680,6 +700,36 @@
       }
     },
     {
+      "name": "netless-pour-overlap",
+      "clause": "5.6",
+      "description": "A pour of no net overlaps a pour of a net at the same priority.",
+      "input": "invalid/E3005-netless-pour-overlap.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E3005",
+            "pointer": "/design/pours/1"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "name": "hatch-without-gap",
+      "clause": "5.6",
+      "description": "A hatch fill must give its gap.",
+      "input": "invalid/E1000-hatch-without-gap.edx.json",
+      "expect": {
+        "errors": [
+          {
+            "code": "EDX-E1000",
+            "pointer": "/design/pours/0/fill"
+          }
+        ],
+        "warnings": []
+      }
+    },
+    {
       "name": "circle-not-round",
       "clause": "5.2",
       "description": "",
@@ -783,6 +833,22 @@
           "design": "sha256:51549b0be24c863979a4ec4b2a7b214bc1f9ae9969a675711a2834d23d5d2ada",
           "rules": "sha256:54a519d087eacf14fbdf516e4e5a61042efa6af7fe2b4dcc82c2bf9edd35f335",
           "constraints": "sha256:76427fe59440ab7035d16f6be149abab334c38e3ee68bfaa528c8a701bb79d99"
+        }
+      }
+    },
+    {
+      "name": "canonical-pours",
+      "clause": "13.1",
+      "description": "Pours of no net stay without a net, a solid fill is left out, and hatch angles are normalised to [0, 90).",
+      "input": "canonical/netless-pour.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": [],
+        "canonical": "canonical/netless-pour.canonical.edx.json",
+        "hashes": {
+          "design": "sha256:6c074ed943a85ef05829893654e20f894c74904c2257d5d9b3315d6915b1dabc",
+          "rules": "sha256:1e29443c126d60f33e9ae025f26102972184a54d92aabb12fb772afe9db6b65b",
+          "constraints": "sha256:1ed048ded2141a0a5de0f3b03088f689b6934e08ca9d5bee0c22452f49d2154c"
         }
       }
     },

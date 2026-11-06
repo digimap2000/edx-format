@@ -281,7 +281,9 @@ impl<'a> Checker<'a> {
 
     fn pour_refs(&mut self, pours: &[Pour], base: &str) {
         for (i, p) in pours.iter().enumerate() {
-            self.net(&p.net, format!("{base}/{i}/net"));
+            if let Some(net) = &p.net {
+                self.net(net, format!("{base}/{i}/net"));
+            }
             for (j, l) in p.layers.iter().enumerate() {
                 self.layer(l, format!("{base}/{i}/layers/{j}"));
             }

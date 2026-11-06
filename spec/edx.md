@@ -335,15 +335,25 @@ A region is a named area that excludes things.
 ### 5.6 Pours
 
 A pour is copper fill as design intent:
-`{ "name", "net", "layers", "outline", "priority", "connection"?, "clearance"? }`.
+`{ "name", "net"?, "layers", "outline", "priority", "fill"?, "connection"?, "clearance"? }`.
 
 - On a signal layer, a pour is, for example, a ground fill.
 - On a plane layer, a pour of another net is an island in the plane.
+- A pour without `net` is copper of no net, connected to nothing, as copper thieving that evens out the copper
+  across a layer. It MAY lie on a signal or a plane layer; on a plane layer it is an island of no net. It joins no pad,
+  so `connection` does not apply to it.
 - A plane layer's own net (section 5.1) has priority 0 and fills what the layer's pours leave. Every pour's
   `priority` MUST be at least 1.
 - Where two pours overlap, the higher `priority` wins. Two overlapping pours of different nets with the same priority
-  are an error.
-- `connection` (as `zone_connection` in section 5.2) and `clearance` default to those of the pour's net class.
+  are an error. Here no net counts as a net of its own: two pours of no net may overlap at the same priority, but a
+  pour of no net and a pour of a net may not.
+- `fill` (OPTIONAL, default solid) says how the pour fills its area:
+    - `{ "kind": "solid" }`: solid copper;
+    - `{ "kind": "hatch", "width", "gap", "angle"? }`: a grid of copper lines, `width` wide with `gap` between them
+      (both positive lengths), running at `angle` (default 0) and at right angles to it. Where the grid starts is the
+      engine's to choose.
+- `connection` (as `zone_connection` in section 5.2) and `clearance` default to those of the pour's net class; for a
+  pour of no net, to those of class `default`.
 
 ## 6. Relations
 
@@ -691,8 +701,8 @@ A document in canonical form:
 
 - **Members** are in the order the schema lists them, with `extensions` and then `extras` last. Members of objects
   keyed by name (`rules.classes`, `rules.relations`, a class's `layers`, `attributes`) are in name order.
-- **Defaults** are left out: `rotation` 0, `locked` false, `cost` 1, and `hard` when it equals its default (section
-  9.1). Empty optional arrays and objects are left out.
+- **Defaults** are left out: `rotation` 0, `locked` false, `cost` 1, a pour's solid `fill`, a hatch's `angle` 0,
+  and `hard` when it equals its default (section 9.1). Empty optional arrays and objects are left out.
 - **Sorted lists.** Lists whose order has no meaning are sorted:
     - records by identity (section 3.1), except the stack-up, whose order is top to bottom: packages, parts, nets,
       regions, pours, relations, constraints; and likewise placed parts by `ref`, pads in a package by `number`,
@@ -709,7 +719,8 @@ A document in canonical form:
   section 2.1), ties away from zero, and written as the shortest plain decimal that reads back as the same value:
   no exponent, no leading `+`, no trailing zeros, no trailing decimal point, and `0` rather than `-0`. Angles are
   first normalised to [0, 360): pad rotations, placement angles, the angle of a `fixed` constraint, the angles of an
-  `orientation` constraint, and block angles.
+  `orientation` constraint, and block angles. A hatch's grid is the same turned by a right angle, so its `angle` is
+  normalised to [0, 90).
 - **Shapes** are rewritten: commands and numbers separated by single spaces; an axis-parallel straight segment as
   `H` or `V`, any other as `L`; arcs as `A r r 0 large sweep x y`; no zero-length segments; the closing straight
   segment left to `Z`; each subpath starting at its point with the least y, then the least x; the outer boundary

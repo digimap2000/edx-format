@@ -253,6 +253,16 @@ fn region(r: &mut Region) {
 fn pour(p: &mut Pour) {
     shapes(&mut p.outline);
     p.layers.sort();
+    match &mut p.fill {
+        // Solid is the default, so it is left out unless it carries extensions or extras.
+        Some(Fill::Solid { ext }) if ext.extensions.is_empty() && ext.extras.is_empty() => p.fill = None,
+        // A hatch's grid is the same turned by a right angle: its angle is normalised to [0, 90).
+        Some(Fill::Hatch { angle: a, .. }) => {
+            let r = round6(a.rem_euclid(90.0));
+            *a = if r >= 90.0 { 0.0 } else { r };
+        }
+        _ => {}
+    }
 }
 
 fn design(d: &mut Design) {
@@ -740,6 +750,30 @@ mod tests {
         assert_eq!(canonical_shape(ccw), ccw);
         let cw = "M 1 0 H 29 A 1 1 0 0 1 30 1 V 19 A 1 1 0 0 1 29 20 H 1 A 1 1 0 0 1 0 19 V 1 A 1 1 0 0 1 1 0 Z";
         assert_eq!(canonical_shape(cw), ccw);
+    }
+
+    #[test]
+    fn pours_of_no_net_and_their_fill() {
+        let text = r#"{ "edx": "1.0", "design": { "pours": [
+            { "name": "thieving", "layers": ["top"], "outline": ["M 0 0 V 1 H 1 V 0 Z"], "priority": 1,
+              "fill": { "kind": "hatch", "width": 0.5, "gap": 0.5, "angle": 135 } },
+            { "name": "gnd", "net": "GND", "layers": ["top"], "outline": ["M 2 0 V 1 H 3 V 0 Z"], "priority": 1,
+              "fill": { "kind": "solid" } } ] } }"#;
+        let (doc, _) = crate::read(text.as_bytes()).expect("reads");
+        let pours = &doc.design.as_ref().unwrap().pours;
+        assert_eq!(pours[0].net, None);
+        assert!(matches!(pours[0].fill, Some(Fill::Hatch { width: 0.5, gap: 0.5, angle: 135.0, .. })));
+        // Written plainly, a pour of no net has no `net` member and keeps its fill as given.
+        let plain: Value = serde_json::from_str(&crate::to_string(&doc)).unwrap();
+        assert!(plain["design"]["pours"][0].get("net").is_none());
+        assert_eq!(plain["design"]["pours"][1]["fill"]["kind"], "solid");
+        // In canonical form solid fill is left out and the hatch's angle is normalised to [0, 90).
+        let canonical = canonicalize(&doc);
+        let pours = &canonical.design.as_ref().unwrap().pours;
+        let (gnd, thieving) = (&pours[0], &pours[1]);
+        assert!(gnd.fill.is_none());
+        assert_eq!(thieving.net, None);
+        assert!(matches!(thieving.fill, Some(Fill::Hatch { angle: 45.0, .. })));
     }
 
     #[test]

@@ -902,6 +902,59 @@
         "excludes"
       ]
     },
+    "fill": {
+      "description": "How a pour fills its area (section 5.6). Absent means solid.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "solid"
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "hatch"
+            },
+            "width": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "gap": {
+              "$ref": "#/$defs/positive_length"
+            },
+            "angle": {
+              "$ref": "#/$defs/angle",
+              "default": 0
+            },
+            "extensions": {
+              "$ref": "#/$defs/extensions"
+            },
+            "extras": {
+              "$ref": "#/$defs/extras"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "width",
+            "gap"
+          ]
+        }
+      ]
+    },
     "pour": {
       "description": "Copper fill as design intent (section 5.6).",
       "type": "object",
@@ -910,6 +963,7 @@
           "$ref": "#/$defs/name"
         },
         "net": {
+          "description": "The pour's net. Without one the pour is copper of no net, as thieving.",
           "$ref": "#/$defs/name"
         },
         "layers": {
@@ -928,6 +982,9 @@
           "minimum": 1,
           "description": "Higher wins; a plane's own net is 0."
         },
+        "fill": {
+          "$ref": "#/$defs/fill"
+        },
         "connection": {
           "$ref": "#/$defs/zone_connection"
         },
@@ -944,7 +1001,6 @@
       "additionalProperties": false,
       "required": [
         "name",
-        "net",
         "layers",
         "outline",
         "priority"

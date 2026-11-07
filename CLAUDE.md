@@ -8,6 +8,11 @@ EDX is a standalone file format and its reference libraries. Keep it usable outs
   the crate). Keep them byte-identical: edit one, then `cp` it to the other, and check with `cmp`.
 - A format change usually touches: `spec/edx.md`, both schema copies, `crates/edx-format/src/model.rs`,
   `semantic.rs`, `canonical.rs`, and conformance cases. Commit aeed5f1 (issue #12) is a good template.
+- A model field whose type changes (for example `Vec` to `Option`) also breaks `crates/edx-kicad` (`src/lib.rs`
+  and `tests/convert.rs`): update both. The PR says that CopperWorks reads the model (`cw-core/src/edx.rs`) and
+  needs updating when it next bumps edx-format in its `Cargo.lock`.
+- Before adding a requirement to §4 completeness, check the callers of `incomplete()`: CopperWorks refuses an
+  import that fails it.
 - A new default value is left out of canonical form (serde `skip_serializing_if`, plus any fix in `canonical.rs`)
   and also needs a line in the "Defaults" list of spec §13.
 - A new error code goes in three places: `CODES` in `crates/edx-format/src/diagnostic.rs`, the table in spec §14.3,

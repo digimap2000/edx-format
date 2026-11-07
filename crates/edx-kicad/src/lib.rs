@@ -1,9 +1,9 @@
 //! Reads a KiCad board (`.kicad_pcb`, KiCad 6 or later) and its project's rules (`.kicad_pro`) and
 //! writes them as an EDX document, with no KiCad running.
 //!
-//! - `design`: the board outline (Edge.Cuts) and copper stack-up, a package per footprint (pads and
-//!   courtyard, as seen from the top), the parts, the nets, the author's zones as pours, and keep-out
-//!   areas as regions. Each part is `fixed` or `free` as [`Fixed`] says.
+//! - `design`: the board outline (Edge.Cuts, when it has one) and copper stack-up, a package per
+//!   footprint (pads and courtyard, as seen from the top), the parts, the nets, the author's zones as
+//!   pours, and keep-out areas as regions. Each part is `fixed` or `free` as [`Fixed`] says.
 //! - `rules`: the project's net classes and board minimums.
 //! - `layout` (unless [`Options::layout`] is off): where the author put every part, and their tracks,
 //!   arcs and vias, so a layout engine's result can be compared with the board as designed.
@@ -226,7 +226,7 @@ impl<'a> Reader<'a> {
     }
 
     fn read(mut self) -> Result<Converted, String> {
-        let outline = self.outline()?;
+        let outline = self.outline();
         let board_area = shape::union(&outline);
         let mut footprints = self.footprints();
 
@@ -315,7 +315,7 @@ impl<'a> Reader<'a> {
         }
 
         let design = Design {
-            board: Some(Board { outline, stackup, ext: Ext::default() }),
+            board: Some(Board { outline: (!outline.is_empty()).then_some(outline), stackup, ext: Ext::default() }),
             packages: Some(packages),
             parts: Some(parts),
             nets: Some(nets),
@@ -345,7 +345,7 @@ impl<'a> Reader<'a> {
 
     // ------------------------------------------------------------ outline
 
-    fn outline(&mut self) -> Result<Vec<String>, String> {
+    fn outline(&mut self) -> Vec<String> {
         let mut open = Vec::new();
         let mut loops = Vec::new();
         let mut take = |d: Drawn| match d {
@@ -382,15 +382,19 @@ impl<'a> Reader<'a> {
             }
         }
         if outline.is_empty() {
-            return Err("the board has no closed outline on Edge.Cuts".into());
+            self.notes.add("the board has no closed outline on Edge.Cuts, so the design has none");
         }
         if outline.len() > 1 {
             self.notes.add(format!("the outline has {} separate pieces, as a panel does", outline.len()));
         }
-        Ok(outline)
+        outline
     }
 
+    /// Whether a courtyard lies at the board's edge; with no outline there is no edge.
     fn at_edge(&self, courtyard: &[String], board: &MultiPolygon<f64>, outline: &[String]) -> bool {
+        if outline.is_empty() {
+            return false;
+        }
         let edges: Vec<[Point; 2]> = outline
             .iter()
             .filter_map(|d| shape::parse(d).ok())

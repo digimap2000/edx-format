@@ -373,7 +373,7 @@
       "type": "object",
       "properties": {
         "outline": {
-          "description": "The board's shape; holes are cut-outs.",
+          "description": "The board's shape; holes are cut-outs. A board with none has no shape yet.",
           "$ref": "#/$defs/shapes"
         },
         "stackup": {
@@ -393,7 +393,6 @@
       },
       "additionalProperties": false,
       "required": [
-        "outline",
         "stackup"
       ]
     },

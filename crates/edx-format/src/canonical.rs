@@ -266,8 +266,8 @@ fn pour(p: &mut Pour) {
 }
 
 fn design(d: &mut Design) {
-    if let Some(b) = &mut d.board {
-        shapes(&mut b.outline);
+    if let Some(outline) = d.board.as_mut().and_then(|b| b.outline.as_mut()) {
+        shapes(outline);
     }
     if let Some(ps) = &mut d.packages {
         for p in ps.iter_mut() {

@@ -140,3 +140,17 @@ fn valid_documents_round_trip_through_the_model() {
         }
     }
 }
+
+#[test]
+fn a_design_with_no_outline_is_complete_and_written_without_one() {
+    let bytes = std::fs::read(suite().join("valid/no-outline.edx.json")).unwrap();
+    let checked = edx_format::check(&bytes);
+    assert!(checked.is_ok(), "{:?}", checked.diagnostics);
+    let document = checked.document.unwrap();
+    // A layout engine takes it: the outline is not part of completeness (section 4).
+    assert!(edx_format::incomplete(&document).is_empty(), "{:?}", edx_format::incomplete(&document));
+    // Written back, the board still has no outline: none is invented.
+    let written: Value = serde_json::from_str(&edx_format::to_string(&document)).unwrap();
+    assert!(written["design"]["board"].get("outline").is_none(), "{}", written["design"]["board"]);
+    assert!(written["design"]["board"].get("stackup").is_some());
+}

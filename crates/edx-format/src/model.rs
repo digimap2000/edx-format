@@ -92,7 +92,9 @@ pub struct Design {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Board {
-    pub outline: Vec<Shape>,
+    /// The board's shape. A board with none has no shape yet (section 5.1).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub outline: Option<Vec<Shape>>,
     pub stackup: Vec<Layer>,
     #[serde(flatten)]
     pub ext: Ext,

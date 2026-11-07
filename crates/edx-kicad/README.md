@@ -23,7 +23,7 @@ for note in converted.notes {
 
 | KiCad | EDX |
 | --- | --- |
-| Edge.Cuts lines, arcs, circles, rectangles, polygons and curves, on the board or in footprints | `design.board.outline`; closed loops inside others are cut-outs |
+| Edge.Cuts lines, arcs, circles, rectangles, polygons and curves, on the board or in footprints | `design.board.outline`; closed loops inside others are cut-outs. A board with no closed loop has no outline, and a note says so |
 | Copper layers `F.Cu`, `In1.Cu` … `B.Cu` | `stackup` layers `top`, `In1` … `bottom` |
 | The board's physical stack-up | `copper_thickness`, `dielectric` (sublayers merged, permittivity averaged by thickness) and `mask` |
 | An inner layer at least half covered by one net's zones, with no other net's tracks | a `plane` layer with that `plane_net` |

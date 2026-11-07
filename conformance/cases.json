@@ -191,6 +191,16 @@
       }
     },
     {
+      "name": "no-outline",
+      "clause": "5.1",
+      "description": "The base document with no board outline: a netlist and a stack-up, complete and valid, whose outline comes later.",
+      "input": "valid/no-outline.edx.json",
+      "expect": {
+        "errors": [],
+        "warnings": []
+      }
+    },
+    {
       "name": "netless-pour",
       "clause": "5.6",
       "description": "Pours of no net: hatched thieving on a signal layer, an island of no net in a plane, and an engine's thieving in the layout; a pour of a net written with solid fill.",

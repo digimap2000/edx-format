@@ -516,7 +516,9 @@ impl<'a> Checker<'a> {
         let doc = self.doc;
         let Some(d) = &doc.design else { return };
         if let Some(b) = &d.board {
-            self.shapes(&b.outline, "/design/board/outline");
+            if let Some(outline) = &b.outline {
+                self.shapes(outline, "/design/board/outline");
+            }
             let first = b.stackup.first().map(|l| l.name.as_str());
             let last = b.stackup.last().map(|l| l.name.as_str());
             if first != Some("top") || last != Some("bottom") {

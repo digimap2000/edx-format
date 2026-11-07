@@ -73,7 +73,7 @@ fn a_two_layer_board_keeps_its_geometry() {
     assert!(kind("J1") && kind("H1") && !kind("R1") && !kind("R2") && !kind("C1"));
 
     // The outline keeps its rounded corners and its round cut-out.
-    let outline = &design.board.as_ref().unwrap().outline;
+    let outline = design.board.as_ref().unwrap().outline.as_ref().unwrap();
     assert_eq!(outline.len(), 1);
     assert_eq!(outline[0].matches(" A ").count(), 4);
     assert_eq!(outline[0].matches('M').count(), 2);
@@ -137,7 +137,10 @@ fn a_kicad_10_board_with_an_inner_plane() {
     assert_eq!(ic.pads[1].rotation, 0.0);
 
     // The outline's arc comes from a polygon's `(arc ...)`.
-    assert_eq!(design.board.as_ref().unwrap().outline, ["M 0 0 L 40 0 L 40 30 A 5 5 0 0 1 35 35 L 0 35 Z"]);
+    assert_eq!(
+        design.board.as_ref().unwrap().outline.as_deref().unwrap(),
+        ["M 0 0 L 40 0 L 40 30 A 5 5 0 0 1 35 35 L 0 35 Z"]
+    );
 }
 
 #[test]
@@ -227,6 +230,22 @@ fn files_it_cannot_read_are_refused_with_a_reason() {
     let old = convert("(kicad_pcb (version 20171130) (host pcbnew 5.1.9))", None, &Options::default());
     assert!(old.err().unwrap().contains("KiCad 5"));
     assert!(convert("(kicad_sch (version 20211123))", None, &Options::default()).is_err());
+}
+
+#[test]
+fn a_board_with_no_outline_converts_without_one() {
     let no_outline = data("two-layer.kicad_pcb").replace("\"Edge.Cuts\") (width", "\"Dwgs.User\") (width");
-    assert!(convert(&no_outline, None, &Options::default()).err().unwrap().contains("outline"));
+    assert_ne!(no_outline, data("two-layer.kicad_pcb"));
+    let converted = convert(&no_outline, None, &Options::default()).unwrap();
+    assert!(converted.notes.iter().any(|n| n.contains("no closed outline")), "{:?}", converted.notes);
+    let design = converted.document.design.as_ref().unwrap();
+    assert!(design.board.as_ref().unwrap().outline.is_none());
+    // With no outline there is no edge, so the edge test fixes no part that isn't locked.
+    let fixed = |r: &str| matches!(design.part(r).unwrap().placement, Placement::Fixed { .. });
+    assert!(!fixed("R1") && !fixed("R2"));
+    // The document is valid EDX and writes no outline.
+    let text = edx_format::to_string(&converted.document);
+    let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+    assert!(value["design"]["board"].get("outline").is_none(), "{}", value["design"]["board"]);
+    assert!(edx_format::check(text.as_bytes()).is_ok(), "{text}");
 }

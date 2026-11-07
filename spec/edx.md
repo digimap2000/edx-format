@@ -210,7 +210,7 @@ that wants one document's values to replace another's MUST remove the old record
 A document may hold any subset of sections, but a layout engine or a checker needs a whole design. A document is
 **complete** when:
 
-- `design` has `board`, `packages`, `parts` and `nets`;
+- `design` has `board`, `packages`, `parts` and `nets`; the board need not have an outline (section 5.1);
 - `rules.classes` defines class `default`, with `clearance`, `track_width` and `via`;
 - every relation kind used in `design.relations` has a rule in `rules.relations`.
 
@@ -242,7 +242,8 @@ holds.
 
 ### 5.1 Board
 
-- `outline` (shapes, REQUIRED): the board's shape. Holes are cut-outs.
+- `outline` (shapes, OPTIONAL): the board's shape. Holes are cut-outs. A board with no outline has no shape yet: a
+  design MAY be a netlist and a stack-up whose outline something else, such as a layout engine, gives later.
 - `stackup` (REQUIRED): the copper layers in order, top first. Each is
   `{ "name", "role": "signal" | "plane", "routable": bool, "plane_net"? }`.
     - There MUST be at least two layers. The first MUST be named `top` and the last `bottom`.
@@ -432,7 +433,8 @@ body: it moves and turns as one, and does not flip in version 1.0.
 
 ### 8.1 Board minimums
 
-`board` holds board-wide minimums: `copper_to_edge` and `hole_to_hole`.
+`board` holds board-wide minimums: `copper_to_edge` and `hole_to_hole`. A board with no outline has no edge, so
+`copper_to_edge` cannot be judged against it; a checker MUST say so rather than report it met.
 
 ### 8.2 Net classes
 
@@ -710,7 +712,8 @@ A document in canonical form:
   keyed by name (`rules.classes`, `rules.relations`, a class's `layers`, `attributes`) are in name order.
 - **Defaults** are left out: `rotation` 0, `locked` false, `cost` 1, a pour's solid `fill`, a hatch's `angle` 0,
   and `hard` when it equals its default (section 9.1). Empty optional arrays and objects are left out. A package
-  with no courtyard stays without one: its nominal courtyard (section 5.2) is not written.
+  with no courtyard stays without one: its nominal courtyard (section 5.2) is not written, and a board with no outline
+  stays without one.
 - **Sorted lists.** Lists whose order has no meaning are sorted:
     - records by identity (section 3.1), except the stack-up, whose order is top to bottom: packages, parts, nets,
       regions, pours, relations, constraints; and likewise placed parts by `ref`, pads in a package by `number`,
